@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title ? `${title} — ${app.locals.appName || 'VITA Frontier'}` : (app.locals.appName || 'VITA Frontier') %></title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="glyph">V</div>
+      <div>
+        <div class="label">VITA Frontier</div>
+        <div class="sub">Recovered Archives</div>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/doctrine">Doctrine</a>
+      <a href="/aars">AARs</a>
+      <a href="/events">Events</a>
+      <a href="/roster">Roster</a>
+      <% if (user) { %>
+        <a href="/me">Me</a>
+        <% if (user.roles?.includes('admin')) { %>
+          <a href="/admin/doctrine/mandate/edit">Admin</a>
+        <% } %>
+        <form method="POST" action="/auth/logout" class="inline-form">
+          <button type="submit">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Register</a>
+      <% } %>
+    </nav>
+  </header>
+
+  <% if (flash) { %>
+    <div class="flash"><%= flash %></div>
+  <% } %>
+
+  <main class="content">

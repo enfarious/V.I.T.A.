@@ -1,0 +1,39 @@
+<%- include('partials/header', { title: 'Home', user }) %>
+
+<section class="grid two">
+  <div class="panel">
+    <h2>Doctrine Fragments</h2>
+    <ul>
+      <% doctrines.forEach(p => { %>
+        <li><a href="/doctrine/<%= p.slug %>"><%= p.title %></a></li>
+      <% }) %>
+    </ul>
+    <a href="/doctrine">View all doctrine</a>
+  </div>
+  <div class="panel">
+    <h2>After-Action (latest)</h2>
+    <ul>
+      <% aars.forEach(a => { %>
+        <li>
+          <a href="/aars/<%= a.id %>"><%= a.title %></a>
+          <% if (a.visibility === 'members') { %><span class="tag warn">Members</span><% } %>
+        </li>
+      <% }) %>
+    </ul>
+    <a href="/aars">View all AARs</a>
+  </div>
+  <div class="panel">
+    <h2>Events Incoming</h2>
+    <ul>
+      <% events.forEach(ev => { %>
+        <li>
+          <a href="/events/<%= ev.id %>"><%= ev.title %></a>
+          <% if (ev.visibility === 'members') { %><span class="tag warn">Members</span><% } %>
+        </li>
+      <% }) %>
+    </ul>
+    <a href="/events">View all events</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,32 @@
+{
+  "name": "vita-frontier",
+  "version": "1.0.0",
+  "description": "VITA Frontier web app (Web2-first, Web3-ready via Chain Adapter boundary)",
+  "type": "module",
+  "main": "src/server/index.js",
+  "scripts": {
+    "dev": "nodemon src/server/index.js",
+    "start": "node src/server/index.js"
+  },
+  "keywords": [
+    "VITA",
+    "EVE",
+    "Frontier",
+    "ChainAdapter"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "dayjs": "^1.11.19",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "marked": "^17.0.1",
+    "sanitize-html": "^2.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
