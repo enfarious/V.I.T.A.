@@ -45,7 +45,8 @@ tmp/
 temp/
 
 # AI / agent outputs (optional but wise)
-VITA_Frontier_CodexStarterSpec
+VITAFrontierCodexStarterSpec.md
 .codex/
 .ai/
 .llm/
+package-lock.json

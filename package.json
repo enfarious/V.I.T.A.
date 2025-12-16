@@ -14,8 +14,8 @@
     "Frontier",
     "ChainAdapter"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Enfarious Krividus",
+  "license": "AGPLv3",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.5.0",
