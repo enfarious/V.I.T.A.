@@ -1,64 +1,75 @@
-import express from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
+import { usePostgres } from '../../db/client.js';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/register', (req, res) => {
-  res.render('auth/register');
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
-router.post('/register', async (req, res) => {
-  const db = req.app.locals.db;
-  const { email, display_name, password } = req.body;
+router.use(authLimiter);
+
+router.post('/register', async (req, res, next) => {
+  const { email, display_name, password } = req.body || {};
   if (!email || !display_name || !password) {
-    req.session.flash = 'All fields are required.';
-    return res.redirect('/auth/register');
+    return res.status(400).json({ error: 'missing_fields' });
   }
 
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-  if (existing) {
-    req.session.flash = 'Email already registered.';
-    return res.redirect('/auth/register');
+  try {
+    const existing = await req.db('users').whereRaw('lower(email) = lower(?)', [email]).first();
+    if (existing) {
+      return res.status(409).json({ error: 'email_in_use' });
+    }
+
+    const password_hash = await bcrypt.hash(password, 12);
+    const insertQuery = req.db('users').insert({ email, password_hash, display_name });
+    const inserted = usePostgres ? await insertQuery.returning(['id']) : await insertQuery;
+    const userId = Array.isArray(inserted)
+      ? typeof inserted[0] === 'object'
+        ? inserted[0].id
+        : inserted[0]
+      : inserted;
+
+    req.session.userId = userId;
+    res.status(201).json({ ok: true, user: { id: userId, email, display_name } });
+  } catch (err) {
+    next(err);
   }
-
-  const password_hash = await bcrypt.hash(password, 10);
-  const result = db
-    .prepare('INSERT INTO users (email, password_hash, display_name) VALUES (?, ?, ?)')
-    .run(email, password_hash, display_name);
-
-  const userId = result.lastInsertRowid;
-  db.prepare('INSERT INTO user_roles (user_id, role) VALUES (?, ?)').run(userId, 'member');
-
-  req.session.userId = userId;
-  res.redirect('/');
 });
 
-router.get('/login', (req, res) => {
-  res.render('auth/login');
-});
-
-router.post('/login', async (req, res) => {
-  const db = req.app.locals.db;
-  const { email, password } = req.body;
-  const user = db.prepare('SELECT id, password_hash FROM users WHERE email = ?').get(email);
-  if (!user) {
-    req.session.flash = 'Invalid credentials.';
-    return res.redirect('/auth/login');
+router.post('/login', async (req, res, next) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ error: 'missing_fields' });
   }
 
-  const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) {
-    req.session.flash = 'Invalid credentials.';
-    return res.redirect('/auth/login');
-  }
+  try {
+    const user = await req.db('users').select('id', 'password_hash', 'display_name', 'email').where({ email }).first();
+    if (!user) {
+      return res.status(401).json({ error: 'invalid_credentials' });
+    }
 
-  req.session.userId = user.id;
-  res.redirect('/');
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) {
+      return res.status(401).json({ error: 'invalid_credentials' });
+    }
+
+    req.session.userId = user.id;
+    res.json({ ok: true, user: { id: user.id, email: user.email, display_name: user.display_name } });
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.post('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/');
+router.post('/logout', (req, res, next) => {
+  req.session.destroy((err) => {
+    if (err) return next(err);
+    res.json({ ok: true });
   });
 });
 

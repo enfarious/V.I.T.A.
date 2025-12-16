@@ -1,44 +1,40 @@
-export function attachUser(db) {
-  return (req, res, next) => {
+export function loadUser() {
+  return async (req, _res, next) => {
     const userId = req.session?.userId;
-    if (!userId) {
-      res.locals.user = null;
+    if (!userId || !req.db) {
+      req.user = null;
       return next();
     }
 
-    const user = db.prepare('SELECT id, email, display_name FROM users WHERE id = ?').get(userId);
-    if (!user) {
-      req.session.userId = null;
-      res.locals.user = null;
-      return next();
+    try {
+      const user = await req.db('users').select('id', 'email', 'display_name').where({ id: userId }).first();
+      if (!user) {
+        req.session.userId = null;
+        req.user = null;
+        return next();
+      }
+      req.user = user;
+      next();
+    } catch (err) {
+      next(err);
     }
-
-    const roles = db
-      .prepare('SELECT role FROM user_roles WHERE user_id = ?')
-      .all(userId)
-      .map((r) => r.role);
-
-    res.locals.user = { ...user, roles };
-    req.user = res.locals.user;
-    next();
   };
 }
 
 export function requireAuth(req, res, next) {
   if (!req.user) {
-    return res.redirect('/auth/login');
+    return res.status(401).json({ error: 'auth_required' });
   }
   next();
 }
 
-export function requireRole(role) {
+export function requireRole(roles = []) {
   return (req, res, next) => {
-    if (!req.user) {
-      return res.redirect('/auth/login');
+    if (!req.membership) {
+      return res.status(403).json({ error: 'forbidden' });
     }
-    const hasRole = Array.isArray(req.user.roles) && req.user.roles.includes(role);
-    if (!hasRole) {
-      return res.status(403).render('error', { message: 'Insufficient permissions.' });
+    if (roles.length > 0 && !roles.includes(req.membership.role)) {
+      return res.status(403).json({ error: 'forbidden' });
     }
     next();
   };

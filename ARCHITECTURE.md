@@ -102,3 +102,13 @@ AI is an observer and advisor, not a ruler.
 If this architecture feels boring, good.
 
 Boring systems survive frontiers.
+
+---
+
+## Repo Audit (spine refactor)
+- **Stack**: Node + Express (ESM), cookie sessions, Knex for Postgres or SQLite fallback.
+- **Data**: Tenants, users, memberships, audit_log tables with migrations; dev seed inserts demo tenant + owner.
+- **Routing**: Path-based tenancy (`/t/:slug`); middleware for tenant resolution, auth, membership/role enforcement.
+- **APIs**: `/health`, auth register/login/logout, `/me`, `/tenants` (create), `/t/:slug` dashboard placeholder, `/t/:slug/:module` placeholders.
+- **Security**: SESSION_SECRET required; httpOnly + SameSite=Lax cookies; centralized error + request logging; rate limit on auth endpoints.
+- **DX**: `.env.example`, npm scripts for dev/start/migrate/seed/test placeholder, README with env + tenant routing notes.

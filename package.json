@@ -6,7 +6,10 @@
   "main": "src/server/index.js",
   "scripts": {
     "dev": "nodemon src/server/index.js",
-    "start": "node src/server/index.js"
+    "start": "node src/server/index.js",
+    "migrate": "node -e \"import('./src/db/migrate.js').then(m=>m.migrateLatest())\"",
+    "seed": "node -e \"import('./src/db/migrate.js').then(m=>m.seedDev())\"",
+    "test": "echo \"(placeholder) add tests\""
   },
   "keywords": [
     "VITA",
@@ -22,8 +25,13 @@
     "dayjs": "^1.11.19",
     "ejs": "^3.1.10",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.4.0",
     "express-session": "^1.18.2",
+    "dotenv": "^16.4.5",
+    "knex": "^3.1.0",
     "marked": "^17.0.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.13.1",
     "sanitize-html": "^2.17.0"
   },
   "devDependencies": {
