@@ -1,6 +1,7 @@
 import express from 'express';
 import session from 'express-session';
 import morgan from 'morgan';
+import path from 'path';
 import { config } from '../config.js';
 import { db } from '../db/client.js';
 import { migrateLatest, seedDev } from '../db/migrate.js';
@@ -11,6 +12,7 @@ import authRouter from './routes/auth.js';
 import meRouter from './routes/me.js';
 import tenantsRouter from './routes/tenants.js';
 import tenantModulesRouter from './routes/tenantModules.js';
+import uiRouter from './routes/ui.js';
 
 export async function createApp() {
   await migrateLatest();
@@ -20,10 +22,16 @@ export async function createApp() {
 
   const app = express();
   app.set('trust proxy', 1);
+  app.set('view engine', 'ejs');
+  app.set('views', path.resolve('src', 'server', 'views'));
+  app.locals.appName = 'VITA Frontier';
+  app.locals.version = config.version;
+  app.locals.commit = config.commit || 'dev';
 
   app.use(morgan('dev'));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
+  app.use('/css', express.static(path.resolve('src', 'server', 'public', 'css')));
   app.use(
     session({
       secret: config.sessionSecret,
@@ -42,7 +50,15 @@ export async function createApp() {
     next();
   });
   app.use(loadUser());
+  app.use((req, res, next) => {
+    res.locals.app = req.app;
+    res.locals.user = req.user;
+    res.locals.flash = req.session?.flash || null;
+    if (req.session) req.session.flash = null;
+    next();
+  });
 
+  app.use('/', uiRouter);
   app.use('/health', healthRouter);
   app.use('/auth', authRouter);
   app.use('/me', meRouter);

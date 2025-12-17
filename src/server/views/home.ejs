@@ -1,39 +1,50 @@
-<%- include('partials/header', { title: 'Home', user }) %>
+<%- include('partials/shell-top', { title: 'Home', active: 'home', user, flash }) %>
 
-<section class="grid two">
-  <div class="panel">
-    <h2>Doctrine Fragments</h2>
-    <ul>
-      <% doctrines.forEach(p => { %>
-        <li><a href="/doctrine/<%= p.slug %>"><%= p.title %></a></li>
-      <% }) %>
-    </ul>
-    <a href="/doctrine">View all doctrine</a>
-  </div>
-  <div class="panel">
-    <h2>After-Action (latest)</h2>
-    <ul>
-      <% aars.forEach(a => { %>
-        <li>
-          <a href="/aars/<%= a.id %>"><%= a.title %></a>
-          <% if (a.visibility === 'members') { %><span class="tag warn">Members</span><% } %>
-        </li>
-      <% }) %>
-    </ul>
-    <a href="/aars">View all AARs</a>
-  </div>
-  <div class="panel">
-    <h2>Events Incoming</h2>
-    <ul>
-      <% events.forEach(ev => { %>
-        <li>
-          <a href="/events/<%= ev.id %>"><%= ev.title %></a>
-          <% if (ev.visibility === 'members') { %><span class="tag warn">Members</span><% } %>
-        </li>
-      <% }) %>
-    </ul>
-    <a href="/events">View all events</a>
+<section class="hero">
+  <div>
+    <p class="eyebrow">VITA Frontier</p>
+    <h1>Multi-tenant spine, ready for humans.</h1>
+    <p class="muted">Path-based tenants, membership gates, and audits — now with a face so you can see it work.</p>
+    <% if (!user) { %>
+      <div class="actions">
+        <a class="button" href="/auth/register">Create account</a>
+        <a class="button ghost" href="/auth/login">Login</a>
+      </div>
+    <% } %>
   </div>
 </section>
 
-<%- include('partials/footer') %>
+<% if (user) { %>
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Your tenants</p>
+        <h2>Memberships</h2>
+      </div>
+      <a class="button small" href="/tenants">Manage tenants</a>
+    </div>
+    <% if (!memberships || memberships.length === 0) { %>
+      <p class="muted">You have no tenants yet. Create one to get started.</p>
+    <% } else { %>
+      <div class="grid cards">
+        <% memberships.forEach(m => { %>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="eyebrow">/<%= m.slug %></div>
+                <h3><%= m.name %></h3>
+              </div>
+              <%- include('partials/roleBadge', { role: m.role }) %>
+            </div>
+            <p class="muted">Tenant ID: <%= m.tenant_id %></p>
+            <div class="card-actions">
+              <a class="button small" href="/t/<%= m.slug %>">Open</a>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+<% } %>
+
+<%- include('partials/shell-bottom') %>

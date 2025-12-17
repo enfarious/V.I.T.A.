@@ -5,17 +5,26 @@ import { usePostgres } from '../../db/client.js';
 import { ROLES, assertValidRole } from '../roles.js';
 
 const router = Router();
+const wantsHTML = (req) => (req.get('accept') || '').includes('text/html');
 
 router.post('/', requireAuth, async (req, res, next) => {
   const { name, slug } = req.body || {};
   const slugValue = normalizeSlug(slug || name || '');
   if (!name || !slugValue) {
+    if (wantsHTML(req)) {
+      req.session.flash = 'Name is required.';
+      return res.redirect('/tenants');
+    }
     return res.status(400).json({ error: 'invalid_tenant_payload' });
   }
 
   try {
     const existing = await req.db('tenants').where({ slug: slugValue }).first();
     if (existing) {
+      if (wantsHTML(req)) {
+        req.session.flash = 'Tenant slug already exists.';
+        return res.redirect('/tenants');
+      }
       return res.status(409).json({ error: 'tenant_exists' });
     }
 
@@ -44,6 +53,11 @@ router.post('/', requireAuth, async (req, res, next) => {
       entity_id: String(tenantId),
       meta_json: JSON.stringify({ slug: slugValue, name })
     });
+
+    if (wantsHTML(req)) {
+      req.session.flash = 'Tenant created.';
+      return res.redirect(`/t/${slugValue}`);
+    }
 
     res.status(201).json({
       tenant: { id: tenantId, name, slug: slugValue, status: 'trial', plan: 'free' },

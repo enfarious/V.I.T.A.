@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title ? `${title} · VITA Frontier` : 'VITA Frontier' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="glyph">V</div>
+      <div>
+        <div class="label">VITA Frontier</div>
+        <div class="sub">Spine</div>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="/" class="<%= active === 'home' ? 'active' : '' %>">Home</a>
+      <% if (user) { %>
+        <a href="/tenants" class="<%= active === 'tenants' ? 'active' : '' %>">Tenants</a>
+        <% if (currentTenant) { %>
+          <a href="/t/<%= currentTenant.slug %>" class="current-tenant">/<%= currentTenant.slug %></a>
+        <% } %>
+        <form method="POST" action="/auth/logout" class="inline-form">
+          <button type="submit">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login" class="<%= active === 'login' ? 'active' : '' %>">Login</a>
+        <a href="/auth/register" class="<%= active === 'register' ? 'active' : '' %>">Register</a>
+      <% } %>
+    </nav>
+    <% if (user) { %>
+      <div class="user-pill">
+        <span class="dot"></span>
+        <div class="email"><%= user.email %></div>
+      </div>
+    <% } %>
+  </header>
+
+  <% if (flash) { %>
+    <div class="flash"><%= flash %></div>
+  <% } %>
+
+  <main class="content">

@@ -4,6 +4,7 @@ import { resolveTenant, requireTenant, requireMembership } from '../middleware/t
 import { tenantDb } from '../db/tenantScope.js';
 
 const router = Router();
+const wantsHTML = (req) => (req.get('accept') || '').includes('text/html');
 
 router.use('/:slug', resolveTenant(), requireTenant);
 
@@ -11,6 +12,14 @@ router.get('/:slug', requireAuth, requireMembership(), async (req, res, next) =>
   try {
     // Tenant-scoped access must use the tenantDb helper to ensure tenant_id predicates.
     req.tenantDb = tenantDb(req.db, req.tenant.id);
+    if (wantsHTML(req)) {
+      return res.render('tenant/dashboard', {
+        tenant: req.tenant,
+        membership: req.membership,
+        user: req.user,
+        currentTenant: req.tenant
+      });
+    }
     res.json({
       ok: true,
       tenant: req.tenant,

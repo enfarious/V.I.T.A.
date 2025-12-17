@@ -42,19 +42,15 @@ export function requireMembership(roles = []) {
         .where({ user_id: req.user.id, tenant_id: req.tenant.id })
         .first();
 
-      if (!membership) {
-        return res.status(403).json({ error: 'forbidden' });
-      }
-
-      if (!ROLE_LIST.includes(membership.role)) {
+      if (!membership || !ROLE_LIST.includes(membership.role) || (roles.length > 0 && !roles.includes(membership.role))) {
+        if ((req.get('accept') || '').includes('text/html')) {
+          return res.status(403).render('error', { title: 'Access denied', message: 'You do not have access to this tenant.', user: req.user });
+        }
         return res.status(403).json({ error: 'forbidden' });
       }
 
       req.membership = membership;
       req.tenantDb = tenantDb(req.db, req.tenant.id);
-      if (roles.length > 0 && !roles.includes(membership.role)) {
-        return res.status(403).json({ error: 'forbidden' });
-      }
 
       next();
     } catch (err) {

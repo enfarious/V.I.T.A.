@@ -1,0 +1,23 @@
+<%- include('../partials/shell-top', { title: 'Register', active: 'register', user, flash }) %>
+
+<section class="panel narrow">
+  <h2>Create account</h2>
+  <form method="POST" action="/auth/register">
+    <label>
+      Email
+      <input type="email" name="email" required autocomplete="email">
+    </label>
+    <label>
+      Display name
+      <input type="text" name="display_name" required autocomplete="name">
+    </label>
+    <label>
+      Password
+      <input type="password" name="password" required autocomplete="new-password">
+    </label>
+    <button type="submit">Register</button>
+  </form>
+  <p class="muted">Already have an account? <a href="/auth/login">Login</a></p>
+</section>
+
+<%- include('../partials/shell-bottom') %>

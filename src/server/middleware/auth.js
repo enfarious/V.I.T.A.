@@ -23,6 +23,10 @@ export function loadUser() {
 
 export function requireAuth(req, res, next) {
   if (!req.user) {
+    if ((req.get('accept') || '').includes('text/html')) {
+      if (req.session) req.session.flash = 'Please sign in.';
+      return res.redirect('/auth/login');
+    }
     return res.status(401).json({ error: 'auth_required' });
   }
   next();

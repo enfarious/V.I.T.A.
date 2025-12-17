@@ -48,6 +48,13 @@ Multi-tenant tribe/alliance management spine for V.I.T.A. Hosting-agnostic, path
 - Tenant membership debug: `GET /t/:slug/_debug/memberships` (example tenant-scoped query)
 - Placeholders: `GET /t/:slug/:module` for future modules.
 
+## UI routes
+- `GET /` home (login/register CTAs or tenant cards for signed-in users)
+- `GET /auth/login`, `GET /auth/register` forms (POST to `/auth/login`/`/auth/register`)
+- `GET /tenants` tenant list + create form (requires auth)
+- `GET /t/:slug` tenant dashboard (requires membership)
+- Friendly 403/404 pages for HTML requests
+
 ## Notes
 - No Stripe or chain integrations in this spine.
 - Sessions are cookie-based with `httpOnly` and `SameSite=Lax`.

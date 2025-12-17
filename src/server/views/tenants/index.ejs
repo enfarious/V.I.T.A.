@@ -1,0 +1,70 @@
+<%- include('../partials/shell-top', { title: 'Tenants', active: 'tenants', user, flash }) %>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Tenants</p>
+      <h2>Your spaces</h2>
+    </div>
+  </div>
+  <div class="grid two">
+    <div class="card">
+      <div class="card-head">
+        <h3>Create tenant</h3>
+      </div>
+      <form method="POST" action="/tenants" class="stack">
+        <label>
+          Name
+          <input type="text" name="name" required placeholder="Galactic Pioneers">
+        </label>
+        <label>
+          Slug (optional)
+          <input type="text" name="slug" placeholder="galactic-pioneers" id="slug-input">
+        </label>
+        <button type="submit">Create</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h3>Memberships</h3>
+      </div>
+      <% if (!memberships || memberships.length === 0) { %>
+        <p class="muted">None yet. Create a tenant to begin.</p>
+      <% } else { %>
+        <ul class="list">
+          <% memberships.forEach(m => { %>
+            <li>
+              <div>
+                <strong><%= m.name %></strong>
+                <div class="muted">/<%= m.slug %></div>
+              </div>
+              <div class="row">
+                <%- include('../partials/roleBadge', { role: m.role }) %>
+                <a class="button tiny" href="/t/<%= m.slug %>">Open</a>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<script>
+  const nameInput = document.querySelector('input[name="name"]');
+  const slugInput = document.querySelector('#slug-input');
+  function slugify(str) {
+    return (str || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+  nameInput?.addEventListener('input', () => {
+    if (slugInput && !slugInput.value) {
+      slugInput.value = slugify(nameInput.value);
+    }
+  });
+</script>
+
+<%- include('../partials/shell-bottom') %>

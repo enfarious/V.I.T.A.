@@ -1,0 +1,51 @@
+<%- include('../partials/shell-top', { title: tenant.name, active: 'tenants', user, flash }) %>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Tenant</p>
+      <h2><%= tenant.name %></h2>
+      <div class="muted">/<%= tenant.slug %></div>
+    </div>
+    <%- include('../partials/roleBadge', { role: membership.role }) %>
+  </div>
+  <div class="grid two">
+    <div class="card">
+      <h4>Debug</h4>
+      <ul class="list">
+        <li><a href="/t/<%= tenant.slug %>/_debug/tenant" target="_blank" rel="noreferrer">/t/<%= tenant.slug %>/_debug/tenant</a></li>
+        <li><a href="/t/<%= tenant.slug %>/_debug/memberships" target="_blank" rel="noreferrer">/t/<%= tenant.slug %>/_debug/memberships</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Your membership</h4>
+      <p class="muted">Role: <%- include('../partials/roleBadge', { role: membership.role }) %></p>
+      <p class="muted">User: <%= user.email %></p>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Modules</p>
+      <h3>Coming soon</h3>
+    </div>
+  </div>
+  <div class="grid cards">
+    <div class="card disabled">
+      <h4>Tribe Roster</h4>
+      <p class="muted">Coming soon.</p>
+    </div>
+    <div class="card disabled">
+      <h4>Alliance</h4>
+      <p class="muted">Coming soon.</p>
+    </div>
+    <div class="card disabled">
+      <h4>Activity / Audit</h4>
+      <p class="muted">Coming soon.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/shell-bottom') %>
