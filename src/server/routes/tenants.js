@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { normalizeSlug } from '../middleware/tenant.js';
 import { usePostgres } from '../../db/client.js';
+import { ROLES, assertValidRole } from '../roles.js';
 
 const router = Router();
 
@@ -31,9 +32,10 @@ router.post('/', requireAuth, async (req, res, next) => {
     await req.db('memberships').insert({
       user_id: req.user.id,
       tenant_id: tenantId,
-      role: 'owner'
+      role: assertValidRole(ROLES.OWNER)
     });
 
+    // Governance enforcement: audit tenant creation with actor + tenant scope.
     await req.db('audit_log').insert({
       tenant_id: tenantId,
       actor_user_id: req.user.id,
@@ -45,7 +47,7 @@ router.post('/', requireAuth, async (req, res, next) => {
 
     res.status(201).json({
       tenant: { id: tenantId, name, slug: slugValue, status: 'trial', plan: 'free' },
-      membership: { user_id: req.user.id, tenant_id: tenantId, role: 'owner' }
+      membership: { user_id: req.user.id, tenant_id: tenantId, role: ROLES.OWNER }
     });
   } catch (err) {
     next(err);

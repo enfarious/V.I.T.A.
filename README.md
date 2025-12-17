@@ -19,6 +19,7 @@ Multi-tenant tribe/alliance management spine for V.I.T.A. Hosting-agnostic, path
 - `SUBDOMAIN_TENANCY` - optional flag if subdomain routing is added later.
 - `SESSION_COOKIE_SECURE` - `true` to require secure cookies.
 - Tenant lifecycle fields: status (`trial` | `active` | `past_due` | `canceled`) and plan (string) are stored on tenants for future billing/entitlement checks.
+- Roles: `owner`, `admin`, `member` (enforced). Tenant creation grants the creator `owner`. Admin/member roles exist for future role management; no demotion/removal flows are implemented yet.
 
 ## Tenant isolation rules
 - Tenant resolution is path-based: `/t/:slug/...` attaches `req.tenant` via `resolveTenant` + `requireTenant`.

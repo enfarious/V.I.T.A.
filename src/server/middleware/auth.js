@@ -29,13 +29,17 @@ export function requireAuth(req, res, next) {
 }
 
 export function requireRole(roles = []) {
+  const roleList = (Array.isArray(roles) ? roles : [roles]).filter(Boolean).map(assertValidRole);
   return (req, res, next) => {
     if (!req.membership) {
       return res.status(403).json({ error: 'forbidden' });
     }
-    if (roles.length > 0 && !roles.includes(req.membership.role)) {
+    if (roleList.length > 0 && !roleList.includes(req.membership.role)) {
       return res.status(403).json({ error: 'forbidden' });
     }
     next();
   };
 }
+
+export const requireOwner = requireRole(['owner']);
+import { assertValidRole } from '../roles.js';

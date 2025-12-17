@@ -35,6 +35,7 @@ Implementation expectations:
 - Every request is scoped through tenant middleware.
 - Cross-tenant access is forbidden by default.
 - Tenant-scoped queries must use the tenant helper (`tenantDb(req.db, req.tenant.id)`) to enforce `tenant_id` automatically; raw, unscoped queries in `/t/:slug` routes are forbidden.
+- Roles are enforced (`owner`, `admin`, `member`) via membership records and middleware; only owners are created today, and future role changes must preserve at least one owner.
 
 ---
 

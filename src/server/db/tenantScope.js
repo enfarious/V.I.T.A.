@@ -3,10 +3,8 @@ const TENANT_SCOPED_TABLES = new Set([
   'audit_log'
 ]);
 
-/**
- * Tenant-scoped query helper. Every call injects tenant_id = tenantId for known tables
- * and throws on raw SQL that lacks an explicit tenant_id predicate.
- */
+// Governance: tenant isolation guardrail. All tenant-scoped data must flow through this helper.
+// It injects tenant_id and refuses raw SQL without tenant_id.
 export function tenantDb(db, tenantId) {
   if (!tenantId) {
     throw new Error('tenantId is required for tenantDb');

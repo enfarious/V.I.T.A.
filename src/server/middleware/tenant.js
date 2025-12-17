@@ -1,5 +1,6 @@
 import { usePostgres } from '../../db/client.js';
 import { tenantDb } from '../db/tenantScope.js';
+import { ROLE_LIST } from '../roles.js';
 
 export function resolveTenant() {
   return async (req, res, next) => {
@@ -34,6 +35,7 @@ export function requireMembership(roles = []) {
     }
 
     try {
+      // Governance: enforce tenant-bound access by requiring a membership on the same tenant_id.
       const membership = await req
         .db('memberships')
         .select('id', 'user_id', 'tenant_id', 'role', 'created_at')
@@ -41,6 +43,10 @@ export function requireMembership(roles = []) {
         .first();
 
       if (!membership) {
+        return res.status(403).json({ error: 'forbidden' });
+      }
+
+      if (!ROLE_LIST.includes(membership.role)) {
         return res.status(403).json({ error: 'forbidden' });
       }
 
