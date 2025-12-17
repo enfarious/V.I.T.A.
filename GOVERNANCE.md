@@ -10,11 +10,17 @@ VITA Frontier is multi-tenant infrastructure. Governance keeps autonomy, safety,
 - Boring reliability beats novelty; operational stability is the priority.
 
 ## Roles and Authority
-- **Owners**: ultimate decision for their tenant; can invite/remove members and set roles.
-- **Admins**: manage memberships and configuration within their tenant; no cross-tenant authority.
-- **Members**: operate within assigned tenant scope.
+- **Owners**: ultimate decision for their tenant; can invite/remove members and set roles; default creator role.
+- **Admins**: manage memberships and configuration within their tenant; no cross-tenant authority. (Reserved for future use.)
+- **Members**: operate within assigned tenant scope; cannot manage other users. (Reserved for future use.)
 - **Core Maintainers**: steward shared spine, migrations, and release gates; cannot access tenant data without explicit, logged approval.
-- **Auditors**: read-only access to logs/metrics when required by policy or contract.
+- **Auditors**: read-only access to logs/metrics when required by policy or contract; scoped to tenant with recorded access.
+
+## Access Model (what code enforces today)
+- Tenant slug resolution (`/t/:slug/...`) is the boundary; `resolveTenant` attaches `req.tenant`.
+- Membership is the gate: `requireMembership` blocks access without a matching `tenant_id` membership for the current user.
+- Tenant-scoped data access must use `tenantDb(req.db, req.tenant.id)` to ensure `tenant_id` predicates; direct unscoped queries under `/t/:slug/...` are disallowed.
+- `/me` only returns memberships for the authenticated user; it is the canonical view of what a user can see.
 
 ## Decision-Making
 - Technical changes follow the ADR/PR process with clear tradeoffs and rollback notes.
@@ -26,10 +32,12 @@ VITA Frontier is multi-tenant infrastructure. Governance keeps autonomy, safety,
 - Tenants own their data; exports must be available without penalties.
 - Hosting entitlements (when enabled) may limit resources, not features; expiry degrades to read-only plus export.
 - No dark-pattern lock-in: no proprietary schemas, no withheld migrations.
+- Tenant lifecycle fields: `status` (`trial` | `active` | `past_due` | `canceled`) and `plan` track entitlements; enforcement/gating will follow in later changes.
 
 ## Access and Privacy
 - Default deny for cross-tenant access; every tenant-scoped query must use `tenant_id`.
 - Operational access to production data requires time-bound approval and audit logging.
+- Audit log purpose: capture security-sensitive actions (e.g., tenant creation) with tenant_id and actor; retention defaults to business requirements and must be documented per deployment.
 - Secrets are environment-scoped; rotation is documented and automated when possible.
 
 ## Incident Response

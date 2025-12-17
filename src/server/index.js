@@ -12,9 +12,9 @@ import meRouter from './routes/me.js';
 import tenantsRouter from './routes/tenants.js';
 import tenantModulesRouter from './routes/tenantModules.js';
 
-async function bootstrap() {
+export async function createApp() {
   await migrateLatest();
-  if (config.env !== 'production') {
+  if (config.env !== 'production' && config.env !== 'test') {
     await seedDev();
   }
 
@@ -52,12 +52,19 @@ async function bootstrap() {
   app.use(notFoundHandler);
   app.use(errorHandler);
 
-  app.listen(config.port, () => {
-    console.log(`VITA Frontier spine listening on http://localhost:${config.port}`);
+  return app;
+}
+
+async function bootstrap() {
+  const app = await createApp();
+  app.listen(config.port, config.host, () => {
+    console.log(`VITA Frontier spine listening on http://${config.host}:${config.port}`);
   });
 }
 
-bootstrap().catch((err) => {
-  console.error('Failed to start server', err);
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== 'test') {
+  bootstrap().catch((err) => {
+    console.error('Failed to start server', err);
+    process.exit(1);
+  });
+}

@@ -24,7 +24,8 @@ export async function seed(knex) {
     {
       slug: 'demo',
       name: 'Demo Tenant',
-      status: 'active'
+      status: 'active',
+      plan: 'free'
     },
     ['id']
   );

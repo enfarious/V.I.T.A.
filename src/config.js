@@ -13,6 +13,7 @@ const pkgJson = fs.existsSync(pkgPath) ? JSON.parse(fs.readFileSync(pkgPath, 'ut
 export const config = {
   env: env.NODE_ENV || 'development',
   port: Number(env.PORT) || 3000,
+  host: env.HOST || env.BIND_ADDRESS || '0.0.0.0',
   sessionSecret: env.SESSION_SECRET || '',
   databaseUrl: env.DATABASE_URL || '',
   dbPath: env.DB_PATH || path.resolve('data', 'vita.db'),

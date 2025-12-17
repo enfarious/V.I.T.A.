@@ -34,6 +34,7 @@ Implementation expectations:
 - Every tenant-scoped table includes `tenant_id`.
 - Every request is scoped through tenant middleware.
 - Cross-tenant access is forbidden by default.
+- Tenant-scoped queries must use the tenant helper (`tenantDb(req.db, req.tenant.id)`) to enforce `tenant_id` automatically; raw, unscoped queries in `/t/:slug` routes are forbidden.
 
 ---
 

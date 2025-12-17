@@ -9,7 +9,7 @@
     "start": "node src/server/index.js",
     "migrate": "node -e \"import('./src/db/migrate.js').then(m=>m.migrateLatest())\"",
     "seed": "node -e \"import('./src/db/migrate.js').then(m=>m.seedDev())\"",
-    "test": "echo \"(placeholder) add tests\""
+    "test": "node --test src/server/__tests__/tenantAccess.test.js"
   },
   "keywords": [
     "VITA",
@@ -35,6 +35,7 @@
     "sanitize-html": "^2.17.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "supertest": "^7.0.0"
   }
 }

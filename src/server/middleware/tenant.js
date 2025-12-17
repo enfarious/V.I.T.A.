@@ -1,4 +1,5 @@
 import { usePostgres } from '../../db/client.js';
+import { tenantDb } from '../db/tenantScope.js';
 
 export function resolveTenant() {
   return async (req, res, next) => {
@@ -44,6 +45,7 @@ export function requireMembership(roles = []) {
       }
 
       req.membership = membership;
+      req.tenantDb = tenantDb(req.db, req.tenant.id);
       if (roles.length > 0 && !roles.includes(membership.role)) {
         return res.status(403).json({ error: 'forbidden' });
       }

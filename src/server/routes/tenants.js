@@ -18,7 +18,9 @@ router.post('/', requireAuth, async (req, res, next) => {
       return res.status(409).json({ error: 'tenant_exists' });
     }
 
-    const insertQuery = req.db('tenants').insert({ name, slug: slugValue, status: 'active' });
+    const insertQuery = req
+      .db('tenants')
+      .insert({ name, slug: slugValue, status: 'trial', plan: 'free' });
     const inserted = usePostgres ? await insertQuery.returning(['id']) : await insertQuery;
     const tenantId = Array.isArray(inserted)
       ? typeof inserted[0] === 'object'
@@ -42,7 +44,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     });
 
     res.status(201).json({
-      tenant: { id: tenantId, name, slug: slugValue, status: 'active' },
+      tenant: { id: tenantId, name, slug: slugValue, status: 'trial', plan: 'free' },
       membership: { user_id: req.user.id, tenant_id: tenantId, role: 'owner' }
     });
   } catch (err) {
