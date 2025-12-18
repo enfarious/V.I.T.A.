@@ -9,7 +9,7 @@
     "start": "node src/server/index.js",
     "migrate": "node -e \"import('./src/db/migrate.js').then(m=>m.migrateLatest())\"",
     "seed": "node -e \"import('./src/db/migrate.js').then(m=>m.seedDev())\"",
-    "test": "node --test src/server/__tests__/*.test.js"
+    "test": "node --test \"src/server/__tests__\""
   },
   "keywords": [
     "VITA",

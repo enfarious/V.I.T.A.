@@ -1,0 +1,19 @@
+<% const cfg = module.config || {}; %>
+<% switch (module.type_key) { case 'tribe_banner': %>
+  <div class="banner">
+    <h3><%= cfg.title || 'Tribe Banner' %></h3>
+    <p class="muted"><%= cfg.subtitle || 'Identity beacon online.' %></p>
+  </div>
+<% break; case 'media_carousel': %>
+  <p class="muted">Media Carousel (stub). Add media links in admin.</p>
+<% break; case 'activity_feed': %>
+  <p class="muted">Activity Feed (stub). No posts yet.</p>
+<% break; case 'message_of_cycle': %>
+  <p><%= cfg.message || 'No message set.' %></p>
+<% break; case 'galaxy_window': %>
+  <p class="muted">Galaxy Window (symbolic). Data link pending.</p>
+<% break; case 'roster': %>
+  <p class="muted">Roster (stub). Members list coming soon.</p>
+<% break; default: %>
+  <p class="muted">Module <%= module.type_key %> coming soon.</p>
+<% } %>

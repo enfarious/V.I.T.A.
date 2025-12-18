@@ -1,6 +1,13 @@
 const TENANT_SCOPED_TABLES = new Set([
   'memberships',
-  'audit_log'
+  'audit_log',
+  'tenant_roles',
+  'tenant_member_roles',
+  'tenant_pages',
+  'tenant_page_permissions',
+  'tenant_page_modules',
+  'tenant_themes',
+  'tenant_posts'
 ]);
 
 // Governance: tenant isolation guardrail. All tenant-scoped data must flow through this helper.

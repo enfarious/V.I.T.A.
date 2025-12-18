@@ -3,6 +3,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { normalizeSlug } from '../middleware/tenant.js';
 import { usePostgres } from '../../db/client.js';
 import { ROLES, assertValidRole } from '../roles.js';
+import { bootstrapTenant } from '../services/tenantBootstrap.js';
 
 const router = Router();
 const wantsHTML = (req) => (req.get('accept') || '').includes('text/html');
@@ -38,11 +39,20 @@ router.post('/', requireAuth, async (req, res, next) => {
         : inserted[0]
       : inserted;
 
-    await req.db('memberships').insert({
+    const membershipInsertQuery = req.db('memberships').insert({
       user_id: req.user.id,
       tenant_id: tenantId,
-      role: assertValidRole(ROLES.OWNER)
+      role: assertValidRole(ROLES.OWNER),
+      status: 'active'
     });
+    const membershipInserted = usePostgres ? await membershipInsertQuery.returning(['id']) : await membershipInsertQuery;
+    const membershipId = Array.isArray(membershipInserted)
+      ? typeof membershipInserted[0] === 'object'
+        ? membershipInserted[0].id
+        : membershipInserted[0]
+      : membershipInserted;
+
+    await bootstrapTenant({ db: req.db, tenantId, membershipId, actorUserId: req.user.id });
 
     // Governance enforcement: audit tenant creation with actor + tenant scope.
     await req.db('audit_log').insert({

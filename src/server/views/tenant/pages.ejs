@@ -1,0 +1,39 @@
+<%- include('../partials/shell-top', { title: 'Pages', active: 'tenants', currentTenant: tenant, user, flash }) %>
+
+<section class="panel">
+  <header class="panel-header">
+    <div>
+      <p class="eyebrow">/<%= tenant.slug %></p>
+      <h2>Pages</h2>
+    </div>
+    <div class="actions">
+      <a class="button ghost" href="/t/<%= tenant.slug %>">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <% if (!pages || pages.length === 0) { %>
+    <div class="empty">
+      <p class="muted">No pages yet. Admins can add pages in the Admin panel.</p>
+    </div>
+  <% } else { %>
+    <div class="card-list">
+      <% pages.forEach(function(p) { %>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <p class="eyebrow"><%= p.slug %></p>
+              <h3><%= p.title %></h3>
+              <p class="muted">Visibility: <span class="badge"><%= p.visibility %></span></p>
+            </div>
+            <div class="badge <%= p.visibility %>"><%= p.visibility %></div>
+          </div>
+          <div class="card-actions">
+            <a class="button primary" href="/t/<%= tenant.slug %>/pages/<%= p.slug %>">Open</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/shell-bottom') %>

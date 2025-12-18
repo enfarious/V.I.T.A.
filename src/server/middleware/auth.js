@@ -1,3 +1,5 @@
+import { assertValidRole } from '../roles.js';
+
 export function loadUser() {
   return async (req, _res, next) => {
     const userId = req.session?.userId;
@@ -42,7 +44,11 @@ export function requireRole(roles = []) {
     if (!req.membership) {
       return res.status(403).json({ error: 'forbidden' });
     }
-    if (roleList.length > 0 && !roleList.includes(req.membership.role)) {
+    const hasRole =
+      roleList.length === 0 ||
+      req.membership.roles?.some((r) => roleList.includes(r)) ||
+      (req.membership.role && roleList.includes(req.membership.role));
+    if (!hasRole || req.membership.status !== 'active') {
       return res.status(403).json({ error: 'forbidden' });
     }
     next();
@@ -50,4 +56,3 @@ export function requireRole(roles = []) {
 }
 
 export const requireOwner = requireRole(['owner']);
-import { assertValidRole } from '../roles.js';

@@ -29,7 +29,7 @@ describe('auth payload normalization', () => {
     const normB = normalizePayload(forms.B);
     const normC = normalizePayload(forms.C);
     const normD = normalizePayload(forms.D);
-    assert.ok(normA.address.endsWith('0abc'));
+    assert.equal(normA.address, '0xabc');
     assert.equal(normA.signature, 'sig');
     assert.equal(normB.publicKey, 'pub');
     assert.equal(normC.signature, 'sig');

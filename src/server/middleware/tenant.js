@@ -1,4 +1,3 @@
-import { usePostgres } from '../../db/client.js';
 import { tenantDb } from '../db/tenantScope.js';
 import { ROLE_LIST } from '../roles.js';
 
@@ -36,13 +35,19 @@ export function requireMembership(roles = []) {
 
     try {
       // Governance: enforce tenant-bound access by requiring a membership on the same tenant_id.
-      const membership = await req
-        .db('memberships')
-        .select('id', 'user_id', 'tenant_id', 'role', 'created_at')
-        .where({ user_id: req.user.id, tenant_id: req.tenant.id })
-        .first();
+      const membership = await loadMembershipWithRoles(req.db, req.user.id, req.tenant.id);
+      const allowedRoles = (Array.isArray(roles) ? roles : [roles]).filter(Boolean);
+      const hasRequiredRole =
+        allowedRoles.length === 0 ||
+        membership?.roles?.some((r) => allowedRoles.includes(r)) ||
+        (membership?.role && allowedRoles.includes(membership.role));
 
-      if (!membership || !ROLE_LIST.includes(membership.role) || (roles.length > 0 && !roles.includes(membership.role))) {
+      if (
+        !membership ||
+        membership.status !== 'active' ||
+        (!ROLE_LIST.includes(membership.role) && (membership.roles || []).length === 0) ||
+        !hasRequiredRole
+      ) {
         if ((req.get('accept') || '').includes('text/html')) {
           return res.status(403).render('error', { title: 'Access denied', message: 'You do not have access to this tenant.', user: req.user });
         }
@@ -65,4 +70,21 @@ export function normalizeSlug(input = '') {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+export async function loadMembershipWithRoles(db, userId, tenantId) {
+  if (!userId || !tenantId) return null;
+  const membership = await db('memberships')
+    .select('id', 'user_id', 'tenant_id', 'role', 'status', 'created_at')
+    .where({ user_id: userId, tenant_id: tenantId })
+    .first();
+  if (!membership) return null;
+  const roles = await db('tenant_member_roles')
+    .join('tenant_roles', 'tenant_member_roles.tenant_role_id', 'tenant_roles.id')
+    .select('tenant_roles.slug', 'tenant_roles.name', 'tenant_roles.priority')
+    .where('tenant_member_roles.tenant_membership_id', membership.id)
+    .orderBy('tenant_roles.priority', 'desc');
+  membership.roles = roles.map((r) => r.slug);
+  membership.role = membership.roles[0] || membership.role; // primary role hint for legacy fields/UI
+  return membership;
 }

@@ -1,0 +1,32 @@
+<%- include('../partials/shell-top', { title: page.title, active: 'tenants', currentTenant: tenant, user, flash }) %>
+
+<section class="panel">
+  <header class="panel-header">
+    <div>
+      <p class="eyebrow">/<%= tenant.slug %>/pages</p>
+      <h2><%= page.title %></h2>
+      <p class="muted"><%= page.slug %> · visibility: <span class="badge"><%= page.visibility %></span></p>
+    </div>
+    <div>
+      <a class="button ghost" href="/t/<%= tenant.slug %>">Dashboard</a>
+    </div>
+  </header>
+
+  <% if (!modules || modules.length === 0) { %>
+    <div class="empty">
+      <p class="muted">No modules yet. Add modules in the Admin page.</p>
+    </div>
+  <% } else { %>
+    <div class="modules-grid">
+      <% modules.forEach(function(mod) { %>
+        <div class="card module-card">
+          <p class="eyebrow"><%= mod.type_key %></p>
+          <% if (mod.title) { %><h4><%= mod.title %></h4><% } %>
+          <%- include('../partials/moduleRenderer', { module: mod, tenant, membership }) %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/shell-bottom') %>

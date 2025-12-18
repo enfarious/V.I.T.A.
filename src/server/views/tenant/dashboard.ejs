@@ -28,6 +28,41 @@
 <section class="panel">
   <div class="panel-head">
     <div>
+      <p class="eyebrow">Pages</p>
+      <h3>Navigate</h3>
+    </div>
+    <div class="actions">
+      <a class="button ghost" href="/t/<%= tenant.slug %>/pages">All pages</a>
+    </div>
+  </div>
+  <div class="grid cards">
+    <div class="card">
+      <h4>Home</h4>
+      <p class="muted">Visibility: public</p>
+      <div class="card-actions">
+        <a class="button" href="/t/<%= tenant.slug %>/pages/home">Open</a>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Member Deck</h4>
+      <p class="muted">Visibility: member</p>
+      <div class="card-actions">
+        <a class="button" href="/t/<%= tenant.slug %>/pages/member-deck">Open</a>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Admin</h4>
+      <p class="muted">Visibility: role (owner/admin)</p>
+      <div class="card-actions">
+        <a class="button ghost" href="/t/<%= tenant.slug %>/pages/admin">Open</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
       <p class="eyebrow">Modules</p>
       <h3>Coming soon</h3>
     </div>
