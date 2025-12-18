@@ -1,23 +1,16 @@
 <%- include('../partials/shell-top', { title: 'Register', active: 'register', user, flash }) %>
 
 <section class="panel narrow">
-  <h2>Create account</h2>
-  <form method="POST" action="/auth/register">
-    <label>
-      Email
-      <input type="email" name="email" required autocomplete="email">
-    </label>
-    <label>
-      Display name
-      <input type="text" name="display_name" required autocomplete="name">
-    </label>
-    <label>
-      Password
-      <input type="password" name="password" required autocomplete="new-password">
-    </label>
-    <button type="submit">Register</button>
-  </form>
-  <p class="muted">Already have an account? <a href="/auth/login">Login</a></p>
+  <h2>Connect Frontier Wallet</h2>
+  <p class="muted">Registration is wallet-based. Connect and sign a nonce to continue.</p>
+  <button id="connect-wallet-btn" type="button">Connect Frontier Wallet</button>
+  <p id="wallet-status" class="muted"></p>
+  <p class="muted">
+    No wallet? Install the EVE Vault / Frontier wallet extension:
+    <a href="https://vault.evefrontier.com/onboarding/welcome?disableAnimation=true" target="_blank" rel="noopener noreferrer">Get EVE Vault</a>
+  </p>
 </section>
+
+<script src="/js/wallet-login.js"></script>
 
 <%- include('../partials/shell-bottom') %>

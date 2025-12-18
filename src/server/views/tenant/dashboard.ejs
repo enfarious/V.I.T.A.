@@ -20,7 +20,7 @@
     <div class="card">
       <h4>Your membership</h4>
       <p class="muted">Role: <%- include('../partials/roleBadge', { role: membership.role }) %></p>
-      <p class="muted">User: <%= user.email %></p>
+      <p class="muted">Wallet: <%= user.wallet_address ? `${user.wallet_address.slice(0,6)}...${user.wallet_address.slice(-4)}` : user.email %></p>
     </div>
   </div>
 </section>

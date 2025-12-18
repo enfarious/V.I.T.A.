@@ -1,0 +1,12 @@
+<%- include('../partials/shell-top', { title: 'Connected', active: 'login', user, flash }) %>
+
+<section class="panel narrow">
+  <h2>Great—you’re connected.</h2>
+  <p class="muted">Your wallet signature was verified and a session is active.</p>
+  <div class="actions">
+    <a class="button" href="/">Go to home</a>
+    <a class="button ghost" href="/tenants">View tenants</a>
+  </div>
+</section>
+
+<%- include('../partials/shell-bottom') %>

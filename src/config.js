@@ -14,6 +14,8 @@ export const config = {
   env: env.NODE_ENV || 'development',
   port: Number(env.PORT) || 3000,
   host: env.HOST || env.BIND_ADDRESS || '0.0.0.0',
+  baseUrl: env.BASE_URL || `http://localhost:${Number(env.PORT) || 3000}`,
+  authDebug: (env.AUTH_DEBUG || '').toLowerCase() === '1' || (env.AUTH_DEBUG || '').toLowerCase() === 'true',
   sessionSecret: env.SESSION_SECRET || '',
   databaseUrl: env.DATABASE_URL || '',
   dbPath: env.DB_PATH || path.resolve('data', 'vita.db'),

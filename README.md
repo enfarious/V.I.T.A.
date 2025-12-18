@@ -11,6 +11,7 @@ Multi-tenant tribe/alliance management spine for V.I.T.A. Hosting-agnostic, path
 - Start dev server: `npm run dev` (defaults to http://localhost:3000)
 
 ## Environment
+- `BASE_URL` - external URL used in wallet login messages (default http://localhost:PORT).
 - `HOST` - interface binding, default `0.0.0.0` (use `127.0.0.1` for local-only). `BIND_ADDRESS` is also accepted.
 - `SESSION_SECRET` (required) - session signing.
 - `PORT` - default 3000.
@@ -20,6 +21,7 @@ Multi-tenant tribe/alliance management spine for V.I.T.A. Hosting-agnostic, path
 - `SESSION_COOKIE_SECURE` - `true` to require secure cookies.
 - Tenant lifecycle fields: status (`trial` | `active` | `past_due` | `canceled`) and plan (string) are stored on tenants for future billing/entitlement checks.
 - Roles: `owner`, `admin`, `member` (enforced). Tenant creation grants the creator `owner`. Admin/member roles exist for future role management; no demotion/removal flows are implemented yet.
+- Auth: passwordless wallet login only. See Wallet Login below.
 
 ## Tenant isolation rules
 - Tenant resolution is path-based: `/t/:slug/...` attaches `req.tenant` via `resolveTenant` + `requireTenant`.
@@ -50,10 +52,19 @@ Multi-tenant tribe/alliance management spine for V.I.T.A. Hosting-agnostic, path
 
 ## UI routes
 - `GET /` home (login/register CTAs or tenant cards for signed-in users)
-- `GET /auth/login`, `GET /auth/register` forms (POST to `/auth/login`/`/auth/register`)
+- `GET /auth/login` wallet login page (connect + sign)
+- `GET /auth/register` shares the wallet login experience
 - `GET /tenants` tenant list + create form (requires auth)
 - `GET /t/:slug` tenant dashboard (requires membership)
 - Friendly 403/404 pages for HTML requests
+
+## Wallet Login
+- Flow: GET `/auth/wallet/nonce` -> wallet signs `message_to_sign` -> POST `/auth/wallet/verify` with `{ nonce_id, wallet_address, signature }` -> session cookie issued.
+- Nonce: 32-byte hex, single-use, expires in 5 minutes. Stored in `auth_nonces` with hashed IP/User-Agent to deter replay.
+- Message: includes `VITA Login`, `Domain`, `Nonce ID`, `Nonce`, `Issued/Expires`, and a frontier chain marker to prevent cross-site reuse.
+- Signature verification: uses ed25519 via `@noble/ed25519`. Provider-specific API wiring is TODO; wallet adapter expects an injected provider with `signMessage({ message })` returning `{ signature, address }`.
+- UI: “Connect Frontier Wallet” button on login/register pages. If no provider is detected, a hint instructs to install the EVE Vault / Frontier wallet extension.
+- Sessions: httpOnly, SameSite=Lax, secure in production.
 
 ## Notes
 - No Stripe or chain integrations in this spine.

@@ -31,7 +31,9 @@ export async function createApp() {
   app.use(morgan('dev'));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
+  app.use(express.static(path.resolve('src', 'server', 'public')));
   app.use('/css', express.static(path.resolve('src', 'server', 'public', 'css')));
+  app.use('/js', express.static(path.resolve('src', 'server', 'public', 'js')));
   app.use(
     session({
       secret: config.sessionSecret,
@@ -59,6 +61,9 @@ export async function createApp() {
   });
 
   app.use('/', uiRouter);
+  app.get('/favicon.ico', (_req, res) => {
+    res.type('image/svg+xml').sendFile(path.resolve('src', 'server', 'public', 'favicon.svg'));
+  });
   app.use('/health', healthRouter);
   app.use('/auth', authRouter);
   app.use('/me', meRouter);

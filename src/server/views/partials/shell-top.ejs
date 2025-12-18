@@ -19,7 +19,7 @@
       <a href="/" class="<%= active === 'home' ? 'active' : '' %>">Home</a>
       <% if (user) { %>
         <a href="/tenants" class="<%= active === 'tenants' ? 'active' : '' %>">Tenants</a>
-        <% if (currentTenant) { %>
+        <% if (typeof currentTenant !== 'undefined' && currentTenant) { %>
           <a href="/t/<%= currentTenant.slug %>" class="current-tenant">/<%= currentTenant.slug %></a>
         <% } %>
         <form method="POST" action="/auth/logout" class="inline-form">
@@ -27,13 +27,12 @@
         </form>
       <% } else { %>
         <a href="/auth/login" class="<%= active === 'login' ? 'active' : '' %>">Login</a>
-        <a href="/auth/register" class="<%= active === 'register' ? 'active' : '' %>">Register</a>
       <% } %>
     </nav>
-    <% if (user) { %>
+    <% if (user) { const short = user.wallet_address ? `${user.wallet_address.slice(0,6)}...${user.wallet_address.slice(-4)}` : user.email; %>
       <div class="user-pill">
         <span class="dot"></span>
-        <div class="email"><%= user.email %></div>
+        <div class="email"><%= short %></div>
       </div>
     <% } %>
   </header>

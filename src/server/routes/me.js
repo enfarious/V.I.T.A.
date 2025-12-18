@@ -22,6 +22,7 @@ router.get('/', requireAuth, async (req, res, next) => {
       user: {
         id: req.user.id,
         email: req.user.email,
+        wallet_address: req.user.wallet_address,
         display_name: req.user.display_name
       },
       memberships

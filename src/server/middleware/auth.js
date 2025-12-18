@@ -7,7 +7,11 @@ export function loadUser() {
     }
 
     try {
-      const user = await req.db('users').select('id', 'email', 'display_name').where({ id: userId }).first();
+      const user = await req
+        .db('users')
+        .select('id', 'email', 'wallet_address', 'display_name')
+        .where({ id: userId })
+        .first();
       if (!user) {
         req.session.userId = null;
         req.user = null;

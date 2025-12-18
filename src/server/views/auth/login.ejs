@@ -1,19 +1,16 @@
 <%- include('../partials/shell-top', { title: 'Login', active: 'login', user, flash }) %>
 
 <section class="panel narrow">
-  <h2>Login</h2>
-  <form method="POST" action="/auth/login">
-    <label>
-      Email
-      <input type="email" name="email" required autocomplete="email">
-    </label>
-    <label>
-      Password
-      <input type="password" name="password" required autocomplete="current-password">
-    </label>
-    <button type="submit">Sign in</button>
-  </form>
-  <p class="muted">No account? <a href="/auth/register">Register</a></p>
+  <h2>Connect Frontier Wallet</h2>
+  <p class="muted">Passwordless login. Sign a nonce with your wallet to create a session.</p>
+  <button id="connect-wallet-btn" type="button">Connect Frontier Wallet</button>
+  <p id="wallet-status" class="muted"></p>
+  <p class="muted">
+    No wallet? Install the EVE Vault / Frontier wallet extension:
+    <a href="https://vault.evefrontier.com/onboarding/welcome?disableAnimation=true" target="_blank" rel="noopener noreferrer">Get EVE Vault</a>
+  </p>
 </section>
+
+<script src="/js/wallet-login.js"></script>
 
 <%- include('../partials/shell-bottom') %>

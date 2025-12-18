@@ -7,8 +7,7 @@
     <p class="muted">Path-based tenants, membership gates, and audits — now with a face so you can see it work.</p>
     <% if (!user) { %>
       <div class="actions">
-        <a class="button" href="/auth/register">Create account</a>
-        <a class="button ghost" href="/auth/login">Login</a>
+        <a class="button" href="/auth/login">Connect Frontier Wallet</a>
       </div>
     <% } %>
   </div>
@@ -26,6 +25,7 @@
     <% if (!memberships || memberships.length === 0) { %>
       <p class="muted">You have no tenants yet. Create one to get started.</p>
     <% } else { %>
+      <p class="muted">Signed in as <%= user.wallet_address ? `${user.wallet_address.slice(0,6)}...${user.wallet_address.slice(-4)}` : user.email %></p>
       <div class="grid cards">
         <% memberships.forEach(m => { %>
           <div class="card">
