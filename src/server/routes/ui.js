@@ -91,4 +91,9 @@ router.get('/t/:slug', requireAuth, async (req, res, next) => {
   return next(); // tenantModules route will render HTML for dashboard
 });
 
+router.get('/admin', requireAuth, (req, res, next) => {
+  // handled by /admin router with platform admin guard
+  return next();
+});
+
 export default router;

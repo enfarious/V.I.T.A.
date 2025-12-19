@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import { usePostgres } from '../../db/client.js';
 import { verifyWalletSignature, describePayload } from '../auth/verifyWalletSignature.js';
 import { config } from '../../config.js';
+import { ensureRootWalletAdmins, upsertPlatformAdminUser } from '../services/platformAdmins.js';
 
 const router = Router();
 
@@ -101,6 +102,7 @@ router.post('/wallet/verify', async (req, res, next) => {
     return res.status(400).json({ error: 'missing_fields' });
   }
   try {
+    await ensureRootWalletAdmins(req.db);
     await req.db.transaction(async (trx) => {
       const nonceRow = await trx('auth_nonces').where({ id: nonce_id }).first();
       if (!nonceRow) {
@@ -154,6 +156,8 @@ router.post('/wallet/verify', async (req, res, next) => {
       } else {
         await trx('users').where({ id: user.id }).update({ last_login_at: new Date().toISOString() });
       }
+
+      await upsertPlatformAdminUser(trx, normalizedAddress, user.id);
 
       req.session.userId = user.id;
     });

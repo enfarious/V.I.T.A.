@@ -4,9 +4,21 @@ import { normalizeSlug } from '../middleware/tenant.js';
 import { usePostgres } from '../../db/client.js';
 import { ROLES, assertValidRole } from '../roles.js';
 import { bootstrapTenant } from '../services/tenantBootstrap.js';
+import { config } from '../../config.js';
+import { isPlatformAdmin } from '../services/platformAdmins.js';
 
 const router = Router();
 const wantsHTML = (req) => (req.get('accept') || '').includes('text/html');
+
+function canCreateTenant(user) {
+  if (!user) return false;
+  const wallet = (user.wallet_address || '').toLowerCase();
+  const allowlist = config.tenantCreatorAllowlist || [];
+  if (allowlist.length > 0 && allowlist.includes(wallet)) return true;
+  if (config.rootWallets.includes(wallet)) return true;
+  if (user.platform_admin) return true;
+  return config.allowTenantSignup;
+}
 
 router.post('/', requireAuth, async (req, res, next) => {
   const { name, slug } = req.body || {};
@@ -17,6 +29,14 @@ router.post('/', requireAuth, async (req, res, next) => {
       return res.redirect('/tenants');
     }
     return res.status(400).json({ error: 'invalid_tenant_payload' });
+  }
+
+  if (!canCreateTenant(req.user)) {
+    if (wantsHTML(req)) {
+      req.session.flash = 'Tenant creation is restricted. Please contact an operator.';
+      return res.redirect('/tenants');
+    }
+    return res.status(403).json({ error: 'tenant_creation_disabled' });
   }
 
   try {

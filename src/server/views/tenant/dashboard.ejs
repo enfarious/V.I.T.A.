@@ -15,6 +15,9 @@
       <ul class="list">
         <li><a href="/t/<%= tenant.slug %>/_debug/tenant" target="_blank" rel="noreferrer">/t/<%= tenant.slug %>/_debug/tenant</a></li>
         <li><a href="/t/<%= tenant.slug %>/_debug/memberships" target="_blank" rel="noreferrer">/t/<%= tenant.slug %>/_debug/memberships</a></li>
+        <% if (membership && (membership.role === 'owner' || membership.role === 'admin')) { %>
+        <li><a href="/t/<%= tenant.slug %>/admin">Tenant admin</a></li>
+        <% } %>
       </ul>
     </div>
     <div class="card">

@@ -1,0 +1,46 @@
+<%- include('../partials/shell-top', { title: 'Platform Admin', active: 'admin', user, flash }) %>
+
+<section class="panel">
+  <header class="panel-head">
+    <div>
+      <p class="eyebrow">Platform</p>
+      <h2>Admin Console</h2>
+      <p class="muted">Root wallets manage tenants and operators.</p>
+    </div>
+  </header>
+
+  <div class="grid two">
+    <div class="card">
+      <h4>Platform Admins</h4>
+      <% if (!admins || admins.length === 0) { %>
+        <p class="muted">No platform admins found.</p>
+      <% } else { %>
+        <ul class="list">
+          <% admins.forEach(a => { %>
+            <li><code><%= a.wallet_address %></code></li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </div>
+    <div class="card">
+      <h4>Tenants</h4>
+      <p class="muted">Count: <%= tenants.length %></p>
+      <ul class="list">
+        <% tenants.forEach(t => { %>
+          <li>
+            /<%= t.slug %> — <%= t.name %> (<%= t.status %>)
+            <form class="inline-form" method="POST" action="/admin/tenants/<%= t.id %>/status">
+              <select name="status">
+                <option value="active" <%= t.status === 'active' ? 'selected' : '' %>>active</option>
+                <option value="disabled" <%= t.status === 'disabled' ? 'selected' : '' %>>disabled</option>
+              </select>
+              <button class="button ghost" type="submit">Update</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/shell-bottom') %>

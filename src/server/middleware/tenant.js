@@ -21,6 +21,9 @@ export function requireTenant(req, res, next) {
   if (!req.tenant) {
     return res.status(404).json({ error: 'tenant_not_found' });
   }
+  if (req.tenant.status === 'disabled' && !req.user?.platform_admin) {
+    return res.status(403).json({ error: 'tenant_disabled' });
+  }
   next();
 }
 

@@ -1,4 +1,5 @@
 import { assertValidRole } from '../roles.js';
+import { isPlatformAdmin } from '../services/platformAdmins.js';
 
 export function loadUser() {
   return async (req, _res, next) => {
@@ -19,7 +20,10 @@ export function loadUser() {
         req.user = null;
         return next();
       }
-      req.user = user;
+      const platform_admin = user?.wallet_address
+        ? await isPlatformAdmin(req.db, user.wallet_address)
+        : false;
+      req.user = { ...user, platform_admin };
       next();
     } catch (err) {
       next(err);
@@ -56,3 +60,14 @@ export function requireRole(roles = []) {
 }
 
 export const requireOwner = requireRole(['owner']);
+
+export function requirePlatformAdmin(req, res, next) {
+  if (!req.user || !req.user.platform_admin) {
+    if ((req.get('accept') || '').includes('text/html')) {
+      if (req.session) req.session.flash = 'Platform admin access required.';
+      return res.status(403).render('error', { title: 'Access denied', message: 'Platform admin only.', user: req.user });
+    }
+    return res.status(403).json({ error: 'forbidden' });
+  }
+  next();
+}

@@ -13,12 +13,15 @@ import meRouter from './routes/me.js';
 import tenantsRouter from './routes/tenants.js';
 import tenantModulesRouter from './routes/tenantModules.js';
 import uiRouter from './routes/ui.js';
+import { ensureRootWalletAdmins } from './services/platformAdmins.js';
+import adminRouter from './routes/admin.js';
 
 export async function createApp() {
   await migrateLatest();
   if (config.env !== 'production' && config.env !== 'test') {
     await seedDev();
   }
+  await ensureRootWalletAdmins(db);
 
   const app = express();
   app.set('trust proxy', 1);
@@ -66,6 +69,7 @@ export async function createApp() {
   });
   app.use('/health', healthRouter);
   app.use('/auth', authRouter);
+  app.use('/admin', adminRouter);
   app.use('/me', meRouter);
   app.use('/tenants', tenantsRouter);
   app.use('/t', tenantModulesRouter);

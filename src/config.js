@@ -16,6 +16,15 @@ export const config = {
   host: env.HOST || env.BIND_ADDRESS || '0.0.0.0',
   baseUrl: env.BASE_URL || `http://localhost:${Number(env.PORT) || 3000}`,
   authDebug: (env.AUTH_DEBUG || '').toLowerCase() === '1' || (env.AUTH_DEBUG || '').toLowerCase() === 'true',
+  allowTenantSignup: (env.ALLOW_TENANT_SIGNUP || '').toLowerCase() === '1' || (env.ALLOW_TENANT_SIGNUP || '').toLowerCase() === 'true',
+  tenantCreatorAllowlist: (env.ALLOWED_TENANT_CREATORS || '')
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean),
+  rootWallets: (env.ROOT_WALLETS || '')
+    .split(',')
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean),
   sessionSecret: env.SESSION_SECRET || '',
   databaseUrl: env.DATABASE_URL || '',
   dbPath: env.DB_PATH || path.resolve('data', 'vita.db'),

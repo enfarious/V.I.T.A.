@@ -9,6 +9,14 @@ const router = Router();
 const wantsHTML = (req) => (req.get('accept') || '').includes('text/html');
 const ADMIN_ROLES = ['owner', 'admin'];
 
+// lightweight method override for HTML forms
+router.use((req, _res, next) => {
+  if (req.method === 'POST' && req.query && req.query._method) {
+    req.method = String(req.query._method).toUpperCase();
+  }
+  next();
+});
+
 async function loadPageWithPolicy(db, tenantId, slug) {
   const page = await db('tenant_pages').where({ tenant_id: tenantId, slug }).first();
   if (!page) return null;
@@ -55,6 +63,31 @@ router.get('/:slug', requireAuth, requireMembership(), async (req, res, next) =>
       tenant: req.tenant,
       membership: req.membership || null,
       message: 'Tenant dashboard placeholder.'
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/:slug/admin', requireAuth, requireMembership(ADMIN_ROLES), async (req, res, next) => {
+  try {
+    const pages = await req.db('tenant_pages').where({ tenant_id: req.tenant.id }).orderBy('sort_order', 'asc');
+    const pageIds = pages.map((p) => p.id);
+    const modules = pageIds.length
+      ? await req.db('tenant_page_modules').whereIn('page_id', pageIds).orderBy('sort_order', 'asc')
+      : [];
+    const pagesWithModules = pages.map((p) => ({
+      ...p,
+      modules: modules
+        .filter((m) => m.page_id === p.id)
+        .map((m) => ({ ...m, config_json: safeParseJson(m.config_json) }))
+    }));
+    return res.render('tenant/admin', {
+      tenant: req.tenant,
+      membership: req.membership,
+      pages: pagesWithModules,
+      user: req.user,
+      currentTenant: req.tenant
     });
   } catch (err) {
     next(err);
@@ -244,16 +277,32 @@ router.get('/:slug/pages', requireAuth, requireMembership(), async (req, res, ne
 
 router.post('/:slug/pages', requireAuth, requireMembership(ADMIN_ROLES), async (req, res, next) => {
   const { title, slug, description, visibility = 'public', sort_order = 0, is_enabled = true } = req.body || {};
+  const allowedRoles = (req.body?.allowed_roles || '')
+    .split(',')
+    .map((r) => r.trim())
+    .filter(Boolean);
   const pageSlug = normalizeSlug(slug || title || '');
   if (!pageSlug || !title) {
+    if (wantsHTML(req)) {
+      req.session.flash = 'Title required for page.';
+      return res.redirect(`/t/${req.tenant.slug}/admin`);
+    }
     return res.status(400).json({ error: 'invalid_page_payload' });
   }
   if (!['public', 'member', 'role', 'custom'].includes(visibility)) {
+    if (wantsHTML(req)) {
+      req.session.flash = 'Invalid visibility.';
+      return res.redirect(`/t/${req.tenant.slug}/admin`);
+    }
     return res.status(400).json({ error: 'invalid_visibility' });
   }
   try {
     const existing = await req.db('tenant_pages').where({ tenant_id: req.tenant.id, slug: pageSlug }).first();
     if (existing) {
+      if (wantsHTML(req)) {
+        req.session.flash = 'Page exists.';
+        return res.redirect(`/t/${req.tenant.slug}/admin`);
+      }
       return res.status(409).json({ error: 'page_exists' });
     }
     const insertQuery = req.db('tenant_pages').insert({
@@ -267,7 +316,24 @@ router.post('/:slug/pages', requireAuth, requireMembership(ADMIN_ROLES), async (
     });
     const inserted = insertQuery.returning ? await insertQuery.returning(['id']) : await insertQuery;
     const id = Array.isArray(inserted) ? (typeof inserted[0] === 'object' ? inserted[0].id : inserted[0]) : inserted;
-    res.status(201).json({ ok: true, page: { id, title, slug: pageSlug, visibility, sort_order, is_enabled } });
+    // permissions allow_role for role/custom vis based on allowedRoles
+    if (allowedRoles.length) {
+      const roles = await req.db('tenant_roles').where({ tenant_id: req.tenant.id }).whereIn('slug', allowedRoles);
+      for (const r of roles) {
+        await req.db('tenant_page_permissions').insert({
+          tenant_id: req.tenant.id,
+          page_id: id,
+          tenant_role_id: r.id,
+          permission_type: 'allow_role'
+        });
+      }
+    }
+    const payload = { id, title, slug: pageSlug, visibility, sort_order, is_enabled };
+    if (wantsHTML(req)) {
+      req.session.flash = 'Page created.';
+      return res.redirect(`/t/${req.tenant.slug}/admin`);
+    }
+    res.status(201).json({ ok: true, page: payload });
   } catch (err) {
     next(err);
   }
@@ -294,6 +360,10 @@ router.patch(
     try {
       const existing = await req.db('tenant_pages').where({ id: pageId, tenant_id: req.tenant.id }).first();
       if (!existing) {
+        if (wantsHTML(req)) {
+          req.session.flash = 'Page not found.';
+          return res.redirect(`/t/${req.tenant.slug}/admin`);
+        }
         return res.status(404).json({ error: 'page_not_found' });
       }
       if (updates.slug) {
@@ -302,9 +372,19 @@ router.patch(
           .where({ tenant_id: req.tenant.id, slug: updates.slug })
           .andWhereNot({ id: pageId })
           .first();
-        if (slugClash) return res.status(409).json({ error: 'page_exists' });
+        if (slugClash) {
+          if (wantsHTML(req)) {
+            req.session.flash = 'Slug already used.';
+            return res.redirect(`/t/${req.tenant.slug}/admin`);
+          }
+          return res.status(409).json({ error: 'page_exists' });
+        }
       }
       await req.db('tenant_pages').where({ id: pageId }).update(updates);
+      if (wantsHTML(req)) {
+        req.session.flash = 'Page updated.';
+        return res.redirect(`/t/${req.tenant.slug}/admin`);
+      }
       res.json({ ok: true });
     } catch (err) {
       next(err);
@@ -341,10 +421,22 @@ router.post(
   async (req, res, next) => {
     const pageId = Number(req.params.pageId);
     const { type_key, title, config_json = {}, sort_order = 0, is_enabled = true } = req.body || {};
-    if (!type_key) return res.status(400).json({ error: 'invalid_module_payload' });
+    if (!type_key) {
+      if (wantsHTML(req)) {
+        req.session.flash = 'Module type required.';
+        return res.redirect(`/t/${req.tenant.slug}/admin`);
+      }
+      return res.status(400).json({ error: 'invalid_module_payload' });
+    }
     try {
       const page = await req.db('tenant_pages').where({ id: pageId, tenant_id: req.tenant.id }).first();
-      if (!page) return res.status(404).json({ error: 'page_not_found' });
+      if (!page) {
+        if (wantsHTML(req)) {
+          req.session.flash = 'Page not found.';
+          return res.redirect(`/t/${req.tenant.slug}/admin`);
+        }
+        return res.status(404).json({ error: 'page_not_found' });
+      }
       const insertQuery = req.db('tenant_page_modules').insert({
         tenant_id: req.tenant.id,
         page_id: pageId,
@@ -356,6 +448,10 @@ router.post(
       });
       const inserted = insertQuery.returning ? await insertQuery.returning(['id']) : await insertQuery;
       const id = Array.isArray(inserted) ? (typeof inserted[0] === 'object' ? inserted[0].id : inserted[0]) : inserted;
+      if (wantsHTML(req)) {
+        req.session.flash = 'Module added.';
+        return res.redirect(`/t/${req.tenant.slug}/admin`);
+      }
       res.status(201).json({ ok: true, module: { id, type_key, title, sort_order, is_enabled } });
     } catch (err) {
       next(err);
@@ -382,8 +478,18 @@ router.patch(
         .db('tenant_page_modules')
         .where({ id: moduleId, page_id: pageId, tenant_id: req.tenant.id })
         .first();
-      if (!module) return res.status(404).json({ error: 'module_not_found' });
+      if (!module) {
+        if (wantsHTML(req)) {
+          req.session.flash = 'Module not found.';
+          return res.redirect(`/t/${req.tenant.slug}/admin`);
+        }
+        return res.status(404).json({ error: 'module_not_found' });
+      }
       await req.db('tenant_page_modules').where({ id: moduleId }).update(updates);
+      if (wantsHTML(req)) {
+        req.session.flash = 'Module updated.';
+        return res.redirect(`/t/${req.tenant.slug}/admin`);
+      }
       res.json({ ok: true });
     } catch (err) {
       next(err);
@@ -405,10 +511,12 @@ router.get('/:slug/pages/:pageSlug', requireAuth, requireMembership(), async (re
       return res.status(403).json({ error: access.reason });
     }
 
-    const modules = (data.modules || []).map((m) => ({
-      ...m,
-      config: safeParseJson(m.config_json)
-    }));
+    const modules = [];
+    for (const m of data.modules || []) {
+      const config = safeParseJson(m.config_json);
+      const moduleData = await loadModuleData(req.db, req.tenant.id, m.type_key, config);
+      modules.push({ ...m, config, data: moduleData });
+    }
 
     if (wantsHTML(req)) {
       return res.render('tenant/page', {
@@ -440,6 +548,51 @@ function safeParseJson(value) {
     return JSON.parse(value);
   } catch {
     return {};
+  }
+}
+
+async function loadModuleData(db, tenantId, typeKey, config) {
+  switch (typeKey) {
+    case 'activity_feed': {
+      const posts = await db('tenant_posts').where({ tenant_id: tenantId }).orderBy('created_at', 'desc').limit(10);
+      return { posts };
+    }
+    case 'roster': {
+      const rows = await db('memberships as m')
+        .leftJoin('users as u', 'm.user_id', 'u.id')
+        .leftJoin('tenant_member_roles as tmr', 'm.id', 'tmr.tenant_membership_id')
+        .leftJoin('tenant_roles as tr', 'tmr.tenant_role_id', 'tr.id')
+        .select(
+          'u.display_name',
+          'u.wallet_address',
+          'u.email',
+          'm.role',
+          db.raw('GROUP_CONCAT(tr.slug) as roles')
+        )
+        .where('m.tenant_id', tenantId)
+        .groupBy('m.id');
+      const members = rows.map((r) => ({
+        display_name: r.display_name,
+        wallet_address: r.wallet_address,
+        email: r.email,
+        role: r.role,
+        roles: r.roles ? r.roles.split(',').filter(Boolean) : []
+      }));
+      return { members };
+    }
+    case 'media_carousel': {
+      const items = Array.isArray(config.items) ? config.items : [];
+      return { items };
+    }
+    case 'message_of_cycle': {
+      return { message: config.message || '' };
+    }
+    case 'tribe_banner': {
+      return { title: config.title, subtitle: config.subtitle };
+    }
+    case 'galaxy_window':
+    default:
+      return {};
   }
 }
 

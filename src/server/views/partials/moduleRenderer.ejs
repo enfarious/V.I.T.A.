@@ -1,19 +1,53 @@
 <% const cfg = module.config || {}; %>
+<% const data = module.data || {}; %>
 <% switch (module.type_key) { case 'tribe_banner': %>
   <div class="banner">
-    <h3><%= cfg.title || 'Tribe Banner' %></h3>
-    <p class="muted"><%= cfg.subtitle || 'Identity beacon online.' %></p>
+    <h3><%= cfg.title || data.title || 'Tribe Banner' %></h3>
+    <p class="muted"><%= cfg.subtitle || data.subtitle || 'Identity beacon online.' %></p>
   </div>
 <% break; case 'media_carousel': %>
-  <p class="muted">Media Carousel (stub). Add media links in admin.</p>
+  <% if (!data.items || data.items.length === 0) { %>
+    <p class="muted">No media yet.</p>
+  <% } else { %>
+    <div class="media-grid">
+      <% data.items.forEach(item => { %>
+        <div class="media-item">
+          <% if (item.type === 'image') { %>
+            <img src="<%= item.url %>" alt="<%= item.title || 'media' %>">
+          <% } else { %>
+            <a href="<%= item.url %>" target="_blank" rel="noreferrer"><%= item.title || item.url %></a>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
 <% break; case 'activity_feed': %>
-  <p class="muted">Activity Feed (stub). No posts yet.</p>
+  <% if (!data.posts || data.posts.length === 0) { %>
+    <p class="muted">No posts yet.</p>
+  <% } else { %>
+    <ul class="list">
+      <% data.posts.forEach(p => { %>
+        <li>
+          <strong><%= p.title || 'Post' %></strong>
+          <p class="muted"><%= p.body ? p.body.slice(0,140) : '' %></p>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
 <% break; case 'message_of_cycle': %>
-  <p><%= cfg.message || 'No message set.' %></p>
+  <p><%= cfg.message || data.message || 'No message set.' %></p>
 <% break; case 'galaxy_window': %>
   <p class="muted">Galaxy Window (symbolic). Data link pending.</p>
 <% break; case 'roster': %>
-  <p class="muted">Roster (stub). Members list coming soon.</p>
+  <% if (!data.members || data.members.length === 0) { %>
+    <p class="muted">No members found.</p>
+  <% } else { %>
+    <ul class="list">
+      <% data.members.forEach(m => { %>
+        <li><strong><%= m.display_name || m.wallet_address || m.email || 'Member' %></strong> — <%= (m.roles || []).join(', ') || m.role || 'member' %></li>
+      <% }) %>
+    </ul>
+  <% } %>
 <% break; default: %>
   <p class="muted">Module <%= module.type_key %> coming soon.</p>
 <% } %>
