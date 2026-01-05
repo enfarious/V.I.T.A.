@@ -95,7 +95,8 @@ VITA Frontier
 VITA Frontier bridges Web2 and Web3 via chain adapters:
 
 - **Current**: Mock adapter for development
-- **Eve Frontier**: MUD framework on Pyrope (EVM L2), World API integration
+- **Eve Frontier (Now)**: MUD framework on Pyrope (EVM L2), World API integration
+- **Eve Frontier (Soon)**: Sui migration expected ~Q2 2026
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
