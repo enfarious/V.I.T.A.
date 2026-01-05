@@ -55,16 +55,22 @@ Non-negotiables for hosted:
 
 ---
 
-## EVE: Frontier / Sui
+## EVE: Frontier / Pyrope
 
-EVE: Frontier operates on **Sui**.
+EVE: Frontier operates on **Pyrope**, a modified Layer 2 EVM chain using the **MUD framework**.
 
-This project will integrate via:
-- read-heavy queries
-- identity resolution
-- proof verification
+Key technologies:
+- **MUD (Multi-User Dungeon)** - Framework for on-chain game state
+- **Smart Object Framework (SOF)** - Abstraction layer for entities (Characters, Objects, Classes)
+- **World API** - REST API for querying on-chain data (https://docs.evefrontier.com/SwaggerWorldApi)
+- **ERC-2771 Meta-transactions** - Gas-free gameplay pattern
 
-No chain logic is embedded directly in the core app.
+This project integrates via:
+- World API queries (read-heavy)
+- Identity resolution (wallet to character)
+- Tribe/corp membership verification
+
+No chain logic is embedded directly in the core app. All blockchain interaction passes through the Chain Adapter.
 
 ---
 
@@ -111,4 +117,22 @@ Boring systems survive frontiers.
 - **Routing**: Path-based tenancy (`/t/:slug`); middleware for tenant resolution, auth, membership/role enforcement.
 - **APIs**: `/health`, auth register/login/logout, `/me`, `/tenants` (create), `/t/:slug` dashboard placeholder, `/t/:slug/:module` placeholders.
 - **Security**: SESSION_SECRET required; httpOnly + SameSite=Lax cookies; centralized error + request logging; rate limit on auth endpoints.
+- **Sessions**: PostgreSQL-backed session store with 30-day expiry; cookies work cross-origin with `credentials: include`.
 - **DX**: `.env.example`, npm scripts for dev/start/migrate/seed/test placeholder, README with env + tenant routing notes.
+
+---
+
+## Module System
+
+Modules provide tenant-scoped functionality with isolated database schemas.
+
+- Each tenant gets schema `tenant_{slug}` with module-specific tables
+- Module routes: `/t/:slug/m/:moduleId/*`
+- Module UI assets served from `storage/tenants/{slug}/{module}/` or module's public/ dir
+- Tenant owners can deploy custom UIs from GitHub repos via asset sync
+
+Key endpoints:
+- `POST /t/:slug/modules/:moduleId/install` - Install module
+- `POST /t/:slug/modules/:moduleId/ui-source` - Configure GitHub source
+- `POST /t/:slug/modules/:moduleId/ui-sync` - Pull latest build from GitHub
+- `GET /t/:slug/m/:moduleId/*` - Module API and UI routes

@@ -92,11 +92,10 @@ VITA Frontier
 
 ## Chain Integration
 
-VITA Frontier is designed to bridge Web2 and Web3:
+VITA Frontier bridges Web2 and Web3 via chain adapters:
 
 - **Current**: Mock adapter for development
-- **Eve Frontier**: MUD framework on Pyrope (EVM L2)
-- **Future**: Sui blockchain support
+- **Eve Frontier**: MUD framework on Pyrope (EVM L2), World API integration
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
