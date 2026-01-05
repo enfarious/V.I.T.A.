@@ -3,6 +3,16 @@
 ## Overview
 VITA Frontier is a Web2-first, Web3-ready multi-tenant application with a chain adapter boundary architecture. It provides user authentication, tenant management, and role-based access control.
 
+## Documentation
+
+User-facing documentation is in `docs/`:
+- `docs/index.md` - Documentation hub with role-based navigation
+- `docs/user-guide.md` - For tribe members (login, joining, profiles)
+- `docs/tenant-portal.md` - For tribe owners (modules, UI deployment)
+- `docs/admin-guide.md` - For platform admins (approvals, management)
+- `docs/developer-guide.md` - For developers (API integration, custom frontends)
+- `docs/openapi.yaml` - Full API specification
+
 ## Project Architecture
 
 ### Tech Stack

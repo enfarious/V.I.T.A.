@@ -1,37 +1,105 @@
-# VITA Frontier Spine
+# VITA Frontier
 
-Multi-tenant tribe/alliance management spine for V.I.T.A. Hosting-agnostic, path-based tenancy first.
+**Web2-first, Web3-ready** multi-tenant platform for tribe and alliance management.
 
-## Quick start
-- Requirements: Node.js (LTS), SQLite (default) or Postgres (via `DATABASE_URL`).
-- Copy `.env.example` to `.env` and set `SESSION_SECRET`.
-- Install deps: `npm install`
-- Run migrations: `npm run migrate`
-- Seed demo (non-prod only): `npm run seed`
-- Start dev server: `npm run dev` (defaults to http://localhost:3000)
+> "VITA is life" - Freedom for everyone from no-code users to engineers who want full control.
 
-## Environment
-- `SESSION_SECRET` (required) — session signing.
-- `PORT` — default 3000.
-- `DATABASE_URL` — Postgres URL; if absent, uses SQLite at `DB_PATH`.
-- `DB_PATH` — SQLite file path (dev fallback).
-- `SUBDOMAIN_TENANCY` — optional flag if subdomain routing is added later.
-- `SESSION_COOKIE_SECURE` — `true` to require secure cookies.
+## Documentation
 
-## Tenant routing
-- Default path-based: `/t/:tenantSlug/...`
-- All tenant-scoped queries must use `tenant_id` (slug resolves to id).
-- Middleware: `resolveTenant` attaches `req.tenant`; `requireTenant` 404s; `requireAuth` 401s; `requireMembership` enforces membership/role (403).
+| Guide | Audience |
+|-------|----------|
+| **[User Guide](docs/user-guide.md)** | Tribe members - joining, login, profiles |
+| **[Tenant Portal](docs/tenant-portal.md)** | Tribe owners - modules, UI deployment |
+| **[Admin Guide](docs/admin-guide.md)** | Platform admins - approvals, management |
+| **[Developer Guide](docs/developer-guide.md)** | Developers - API integration, custom UIs |
+| **[API Reference](docs/openapi.yaml)** | Full OpenAPI specification |
 
-## Health
-- `GET /health` → `{ ok: true, version, commit, timestamp }`
+## Quick Start
 
-## Minimal API surface (spine)
-- Auth: `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `GET /me`
-- Tenants: `POST /tenants` (creates tenant; creator becomes owner), `GET /t/:slug` (placeholder dashboard)
-- Placeholders: `GET /t/:slug/:module` for future modules.
+### Requirements
+- Node.js 20+
+- PostgreSQL (or SQLite for dev)
+- Discord OAuth app (for authentication)
 
-## Notes
-- No Stripe or chain integrations in this spine.
-- Sessions are cookie-based with `httpOnly` and `SameSite=Lax`.
-- Dev seed inserts demo tenant + owner user (`admin@example.com` / `admin123`) in non-production only.
+### Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your Discord OAuth credentials
+
+# Run migrations
+npm run migrate
+
+# Start development server
+npm run dev
+```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SESSION_SECRET` | Yes | Session encryption key |
+| `DISCORD_CLIENT_ID` | Yes | Discord OAuth app ID |
+| `DISCORD_CLIENT_SECRET` | Yes | Discord OAuth secret |
+| `DATABASE_URL` | No | PostgreSQL URL (falls back to SQLite) |
+| `PORT` | No | Server port (default: 5000) |
+
+## Architecture
+
+```
+VITA Frontier
+├── Spine (this repo)
+│   ├── Authentication (Discord OAuth)
+│   ├── Tenant Management (schema-per-tenant)
+│   ├── Module System (plug-and-play features)
+│   └── Asset Sync (deploy UIs from GitHub)
+│
+└── Frontends (BYO or use defaults)
+    ├── Spine UI (EJS templates - built-in)
+    └── Module UIs (React/Vue/etc - deployable)
+```
+
+### Key Concepts
+
+- **Tenants** = Tribes/Alliances with isolated data
+- **Modules** = Features installed per-tenant
+- **Spine** = Core backend (auth, routing, orchestration)
+- **BYO Frontend** = Optional custom UI via API
+
+## Routes
+
+### Spine Routes (EJS)
+- `/` - Home
+- `/auth/login` - Discord login
+- `/me` - User profile
+- `/tenants` - Browse tenants
+- `/admin` - Platform admin dashboard
+- `/t/:slug` - Tenant portal
+
+### Module Routes (SPA)
+- `/t/:slug/m/:moduleId/` - Module UI
+- `/t/:slug/m/:moduleId/members` - API: members
+- `/t/:slug/m/:moduleId/ranks` - API: ranks
+
+### API Routes (JSON)
+- `/api/health` - Health check
+- `/api/me` - Current user
+- `/api/tenants` - Tenant list
+
+## Chain Integration
+
+VITA Frontier is designed to bridge Web2 and Web3:
+
+- **Current**: Mock adapter for development
+- **Eve Frontier**: MUD framework on Pyrope (EVM L2)
+- **Future**: Sui blockchain support
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
+
+## License
+
+AGPL-3.0 - See [LICENSE](LICENSE)
