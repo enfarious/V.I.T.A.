@@ -1,0 +1,72 @@
+~/workspace$ git pull origin main --rebase
+git push origin main
+From https://github.com/enfarious/V.I.T.A.
+ * branch            main       -> FETCH_HEAD
+Auto-merging .env.example
+CONFLICT (add/add): Merge conflict in .env.example
+Auto-merging .gitignore
+CONFLICT (add/add): Merge conflict in .gitignore
+Auto-merging ARCHITECTURE.md
+CONFLICT (add/add): Merge conflict in ARCHITECTURE.md
+Auto-merging GOVERNANCE.md
+CONFLICT (add/add): Merge conflict in GOVERNANCE.md
+Auto-merging README.md
+CONFLICT (add/add): Merge conflict in README.md
+Auto-merging package.json
+CONFLICT (add/add): Merge conflict in package.json
+Auto-merging src/config.js
+CONFLICT (add/add): Merge conflict in src/config.js
+Auto-merging src/core/chain/ChainAdapter.js
+CONFLICT (add/add): Merge conflict in src/core/chain/ChainAdapter.js
+Auto-merging src/core/chain/MockChainAdapter.js
+CONFLICT (add/add): Merge conflict in src/core/chain/MockChainAdapter.js
+Auto-merging src/core/chain/SuiChainAdapter.js
+CONFLICT (add/add): Merge conflict in src/core/chain/SuiChainAdapter.js
+Auto-merging src/db/seeds/dev_seed.js
+CONFLICT (add/add): Merge conflict in src/db/seeds/dev_seed.js
+Auto-merging src/server/index.js
+CONFLICT (add/add): Merge conflict in src/server/index.js
+Auto-merging src/server/middleware/auth.js
+CONFLICT (add/add): Merge conflict in src/server/middleware/auth.js
+Auto-merging src/server/middleware/error.js
+CONFLICT (add/add): Merge conflict in src/server/middleware/error.js
+Auto-merging src/server/middleware/tenant.js
+CONFLICT (add/add): Merge conflict in src/server/middleware/tenant.js
+Auto-merging src/server/public/css/styles.css
+CONFLICT (add/add): Merge conflict in src/server/public/css/styles.css
+Auto-merging src/server/routes/admin.js
+CONFLICT (add/add): Merge conflict in src/server/routes/admin.js
+Auto-merging src/server/routes/auth.js
+CONFLICT (add/add): Merge conflict in src/server/routes/auth.js
+Auto-merging src/server/routes/me.js
+CONFLICT (add/add): Merge conflict in src/server/routes/me.js
+Auto-merging src/server/routes/tenantModules.js
+CONFLICT (add/add): Merge conflict in src/server/routes/tenantModules.js
+Auto-merging src/server/routes/tenants.js
+CONFLICT (add/add): Merge conflict in src/server/routes/tenants.js
+Auto-merging src/server/views/admin/index.ejs
+CONFLICT (add/add): Merge conflict in src/server/views/admin/index.ejs
+Auto-merging src/server/views/auth/login.ejs
+CONFLICT (add/add): Merge conflict in src/server/views/auth/login.ejs
+Auto-merging src/server/views/error.ejs
+CONFLICT (add/add): Merge conflict in src/server/views/error.ejs
+Auto-merging src/server/views/home.ejs
+CONFLICT (add/add): Merge conflict in src/server/views/home.ejs
+Auto-merging src/server/views/partials/header.ejs
+CONFLICT (add/add): Merge conflict in src/server/views/partials/header.ejs
+Auto-merging src/server/views/tenants/index.ejs
+CONFLICT (add/add): Merge conflict in src/server/views/tenants/index.ejs
+error: could not apply 7470104... Add tenant portal and various backend improvements
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the state before "git rebase", run "git rebase --abort".
+hint: Disable this message with "git config set advice.mergeConflict false"
+Could not apply 7470104... # Add tenant portal and various backend improvements
+To https://github.com/enfarious/V.I.T.A.
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'https://github.com/enfarious/V.I.T.A.'
+hint: Updates were rejected because a pushed branch tip is behind its remote
+hint: counterpart. If you want to integrate the remote changes, use 'git pull'
+hint: before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
