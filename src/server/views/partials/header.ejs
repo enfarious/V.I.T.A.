@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= typeof title !== 'undefined' && title ? `${title} — VITA Frontier` : 'VITA Frontier' %></title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="glyph">V</div>
+      <div>
+        <div class="label">VITA Frontier</div>
+        <div class="sub">Multi-Tenant Spine</div>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/tenants">Tenants</a>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a href="/me">Profile</a>
+        <form method="POST" action="/auth/logout" class="inline-form">
+          <button type="submit">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Register</a>
+      <% } %>
+    </nav>
+  </header>
+
+  <% if (typeof flash !== 'undefined' && flash) { %>
+    <div class="flash <%= typeof flashType !== 'undefined' ? flashType : '' %>"><%= flash %></div>
+  <% } %>
+
+  <main class="content">

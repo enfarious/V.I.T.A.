@@ -1,0 +1,62 @@
+<%- include('partials/header', { title: 'Home', user, flash: typeof flash !== 'undefined' ? flash : null, flashType: typeof flashType !== 'undefined' ? flashType : null }) %>
+
+<section class="grid two">
+  <div class="panel">
+    <h2>Welcome to VITA Frontier</h2>
+    <p class="muted">A Web2-first, Web3-ready multi-tenant platform.</p>
+    <% if (typeof user !== 'undefined' && user) { %>
+      <p>Logged in as <strong><%= user.display_name %></strong></p>
+      <p>
+        <a href="/me">View your profile</a>
+        <% if (user.is_platform_admin) { %> | <a href="/admin">Platform Admin</a><% } %>
+      </p>
+    <% } else { %>
+      <p>Get started by logging in or registering.</p>
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <a href="/auth/login"><button>Login</button></a>
+        <a href="/auth/register"><button class="secondary">Register</button></a>
+      </div>
+    <% } %>
+  </div>
+  <div class="panel">
+    <h2>System Status</h2>
+    <ul style="list-style: none; padding: 0; margin: 0;">
+      <li><span class="tag positive">Online</span> API Health</li>
+      <li style="margin-top: 8px;"><span class="tag positive">Ready</span> Database</li>
+      <li style="margin-top: 8px;"><span class="tag">v<%= typeof version !== 'undefined' ? version : '1.0.0' %></span> Version</li>
+    </ul>
+  </div>
+</section>
+
+<% if (typeof tenants !== 'undefined' && tenants && tenants.length > 0) { %>
+<section class="panel" style="margin-top: 24px;">
+  <h2>Your Tenants</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% tenants.forEach(t => { %>
+        <tr>
+          <td><a href="/t/<%= t.slug %>/m/basic_tribe_ui/"><%= t.name %></a></td>
+          <td class="muted"><%= t.slug %></td>
+          <td><span class="tag"><%= t.role %></span></td>
+          <td>
+            <span class="tag <%= t.status === 'active' ? 'positive' : 'warn' %>"><%= t.status %></span>
+            <% if (t.role === 'owner') { %>
+              <a href="/t/<%= t.slug %>/m/basic_tribe_ui/admin" style="margin-left: 8px;">Admin</a>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+<% } %>
+
+<%- include('partials/footer') %>

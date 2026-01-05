@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tribe Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #e4e4e7;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    header {
+      text-align: center;
+      padding: 3rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #a78bfa, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #a78bfa;
+    }
+    .status { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+    .status-dot.pending { background: #eab308; }
+    .status-dot.offline { background: #ef4444; }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(90deg, #7c3aed, #6366f1);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #4f46e5;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #a1a1aa;
+      font-size: 0.9rem;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #7c3aed;
+    }
+    .hidden { display: none !important; }
+    .member-list { list-style: none; }
+    .member-list li {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .member-list li:last-child { border-bottom: none; }
+    .rank-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      background: rgba(167, 139, 250, 0.2);
+      border-radius: 4px;
+      color: #a78bfa;
+    }
+    .actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    #loading {
+      text-align: center;
+      padding: 4rem;
+      color: #a1a1aa;
+    }
+    .error { color: #ef4444; padding: 1rem; text-align: center; }
+    .success { color: #22c55e; padding: 1rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading">Loading tribe portal...</div>
+    
+    <div id="app" class="hidden">
+      <header>
+        <h1 id="tribe-name">Tribe Portal</h1>
+        <p class="subtitle" id="tribe-status">Loading...</p>
+      </header>
+
+      <div id="guest-view" class="hidden">
+        <div class="card">
+          <h2>Welcome, Traveler</h2>
+          <p style="margin-bottom: 1rem; color: #a1a1aa;">You need to sign in to access the tribe portal.</p>
+          <a href="/auth/discord" class="btn">Sign in with Discord</a>
+        </div>
+      </div>
+
+      <div id="non-member-view" class="hidden">
+        <div class="card">
+          <div class="user-info" style="margin-bottom: 1.5rem;">
+            <img id="user-avatar" class="avatar" src="" alt="">
+            <div>
+              <strong id="user-name">User</strong>
+              <p style="color: #a1a1aa; font-size: 0.9rem;">Not a member yet</p>
+            </div>
+          </div>
+          <h2>Join This Tribe</h2>
+          <form id="join-form">
+            <div class="form-group">
+              <label>Character Name</label>
+              <input type="text" id="character-name" required placeholder="Your in-game character name">
+            </div>
+            <div class="form-group">
+              <label>Wallet Address</label>
+              <input type="text" id="wallet-address" placeholder="0x... (optional for now)">
+            </div>
+            <div class="form-group">
+              <label>Why do you want to join?</label>
+              <textarea id="join-note" rows="3" placeholder="Tell us a bit about yourself..."></textarea>
+            </div>
+            <button type="submit" class="btn">Submit Join Request</button>
+          </form>
+          <div id="join-status" class="hidden"></div>
+        </div>
+      </div>
+
+      <div id="pending-view" class="hidden">
+        <div class="card">
+          <h2>Application Pending</h2>
+          <div class="status">
+            <span class="status-dot pending"></span>
+            <span>Your join request is awaiting approval</span>
+          </div>
+          <p style="color: #a1a1aa; margin-top: 1rem;">A tribe leader will review your application soon.</p>
+        </div>
+      </div>
+
+      <div id="member-view" class="hidden">
+        <div class="card">
+          <div class="user-info" style="flex: 1;">
+            <img id="member-avatar" class="avatar" src="" alt="">
+            <div>
+              <strong id="member-name">Member</strong>
+              <span class="rank-badge" id="member-rank">Member</span>
+            </div>
+          </div>
+          <a id="admin-link" href="./admin" class="btn btn-secondary hidden" style="margin-left: auto;">Admin Settings</a>
+        </div>
+
+        <div class="card">
+          <h2>Tribe Members</h2>
+          <ul class="member-list" id="members-list">
+            <li>Loading members...</li>
+          </ul>
+        </div>
+
+        <div id="admin-section" class="hidden">
+          <div class="card">
+            <h2>Pending Join Requests</h2>
+            <ul class="member-list" id="pending-list">
+              <li>No pending requests</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = window.location.pathname.replace(/\/$/, '');
+    
+    let currentUser = null;
+    let currentTenant = null;
+    let membership = null;
+
+    async function api(path, options = {}) {
+      const res = await fetch(BASE_URL + path, {
+        ...options,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers
+        }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(err.error || 'Request failed');
+      }
+      return res.json();
+    }
+
+    async function loadUserSession() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        if (res.ok) {
+          currentUser = await res.json();
+          return true;
+        }
+      } catch (e) {
+        console.error('Session check failed:', e);
+      }
+      return false;
+    }
+
+    async function loadMembership() {
+      try {
+        const data = await api('/me');
+        membership = data.membership;
+        currentTenant = data.tenant;
+        return data;
+      } catch (e) {
+        if (e.message.includes('401')) {
+          return null;
+        }
+        console.error('Membership check failed:', e);
+        return null;
+      }
+    }
+
+    async function loadMembers() {
+      try {
+        const data = await api('/members');
+        return data.members || [];
+      } catch (e) {
+        console.error('Failed to load members:', e);
+        return [];
+      }
+    }
+
+    async function loadPendingRequests() {
+      try {
+        const data = await api('/join-requests');
+        return data.requests || [];
+      } catch (e) {
+        console.error('Failed to load pending:', e);
+        return [];
+      }
+    }
+
+    function showView(viewId) {
+      ['guest-view', 'non-member-view', 'pending-view', 'member-view'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    function renderMembers(members) {
+      const list = document.getElementById('members-list');
+      if (!members.length) {
+        list.innerHTML = '<li>No members yet</li>';
+        return;
+      }
+      list.innerHTML = members.map(m => `
+        <li>
+          <img class="avatar" src="${m.avatar_url || ''}" alt="" style="width:32px;height:32px;">
+          <span>${m.character_name || m.display_name}</span>
+          <span class="rank-badge">${m.rank_name || 'Member'}</span>
+        </li>
+      `).join('');
+    }
+
+    function renderPendingRequests(requests) {
+      const list = document.getElementById('pending-list');
+      if (!requests.length) {
+        list.innerHTML = '<li>No pending requests</li>';
+        return;
+      }
+      list.innerHTML = requests.map(r => `
+        <li>
+          <img class="avatar" src="${r.avatar_url || ''}" alt="" style="width:32px;height:32px;">
+          <div style="flex:1">
+            <strong>${r.character_name}</strong>
+            <p style="color:#a1a1aa;font-size:0.85rem;">${r.note || 'No note'}</p>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="approveRequest(${r.id})">Approve</button>
+            <button class="btn btn-secondary" onclick="denyRequest(${r.id})">Deny</button>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    async function approveRequest(id) {
+      try {
+        await api(`/join-requests/${id}/approve`, { method: 'POST' });
+        init();
+      } catch (e) {
+        alert('Failed to approve: ' + e.message);
+      }
+    }
+
+    async function denyRequest(id) {
+      try {
+        await api(`/join-requests/${id}/deny`, { method: 'POST' });
+        init();
+      } catch (e) {
+        alert('Failed to deny: ' + e.message);
+      }
+    }
+
+    async function submitJoinRequest(e) {
+      e.preventDefault();
+      const statusEl = document.getElementById('join-status');
+      
+      try {
+        await api('/join', {
+          method: 'POST',
+          body: JSON.stringify({
+            character_name: document.getElementById('character-name').value,
+            wallet_address: document.getElementById('wallet-address').value || null,
+            note: document.getElementById('join-note').value || null
+          })
+        });
+        statusEl.className = 'success';
+        statusEl.textContent = 'Join request submitted! Awaiting approval.';
+        statusEl.classList.remove('hidden');
+        setTimeout(() => init(), 1500);
+      } catch (e) {
+        statusEl.className = 'error';
+        statusEl.textContent = e.message;
+        statusEl.classList.remove('hidden');
+      }
+    }
+
+    async function init() {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('app').classList.add('hidden');
+
+      const hasSession = await loadUserSession();
+      
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+
+      if (!hasSession) {
+        document.getElementById('tribe-name').textContent = 'Tribe Portal';
+        document.getElementById('tribe-status').textContent = 'Sign in to continue';
+        showView('guest-view');
+        return;
+      }
+
+      const memberData = await loadMembership();
+      
+      document.getElementById('tribe-name').textContent = currentTenant?.name || 'Tribe Portal';
+
+      const avatarUrl = currentUser?.discord_avatar 
+        ? `https://cdn.discordapp.com/avatars/${currentUser.discord_id}/${currentUser.discord_avatar}.png`
+        : '';
+
+      if (!membership) {
+        document.getElementById('tribe-status').textContent = 'Join to become a member';
+        document.getElementById('user-avatar').src = avatarUrl;
+        document.getElementById('user-name').textContent = currentUser?.display_name || 'User';
+        document.getElementById('join-form').addEventListener('submit', submitJoinRequest);
+        showView('non-member-view');
+        return;
+      }
+
+      if (membership.status === 'pending') {
+        document.getElementById('tribe-status').textContent = 'Application pending';
+        showView('pending-view');
+        return;
+      }
+
+      document.getElementById('tribe-status').textContent = `${membership.rank_name || 'Member'}`;
+      document.getElementById('member-avatar').src = avatarUrl;
+      document.getElementById('member-name').textContent = currentUser?.display_name || 'Member';
+      document.getElementById('member-rank').textContent = membership.rank_name || 'Member';
+
+      showView('member-view');
+
+      const members = await loadMembers();
+      renderMembers(members);
+
+      if (['owner', 'chief'].includes(membership.role)) {
+        document.getElementById('admin-section').classList.remove('hidden');
+        document.getElementById('admin-link').classList.remove('hidden');
+        const pending = await loadPendingRequests();
+        renderPendingRequests(pending);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

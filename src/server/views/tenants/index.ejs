@@ -1,0 +1,60 @@
+<%- include('../partials/header', { title: 'Tenants', user, flash: typeof flash !== 'undefined' ? flash : null, flashType: typeof flashType !== 'undefined' ? flashType : null }) %>
+
+<section class="panel">
+  <h1>Tenants</h1>
+  <% if (typeof tenants !== 'undefined' && tenants && tenants.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tenants.forEach(t => { %>
+          <tr>
+            <td><a href="/t/<%= t.slug %>/m/basic_tribe_ui/"><%= t.name %></a></td>
+            <td class="muted"><%= t.slug %></td>
+            <td><span class="tag <%= t.status === 'active' ? 'positive' : 'warn' %>"><%= t.status %></span></td>
+            <td class="muted"><%= t.created_at ? new Date(t.created_at).toLocaleDateString() : '-' %></td>
+            <td>
+              <a href="/t/<%= t.slug %>/m/basic_tribe_ui/">Portal</a>
+              <% if (t.role === 'owner') { %>
+                <a href="/t/<%= t.slug %>/m/basic_tribe_ui/admin" style="margin-left: 8px;">Admin</a>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p class="muted">No tenants found.</p>
+  <% } %>
+</section>
+
+<% if (typeof user !== 'undefined' && user) { %>
+<section class="panel" style="margin-top: 24px;">
+  <h2>Request New Tenant</h2>
+  <p class="muted">Submit a request to create a new tenant. Platform admins will review and approve.</p>
+  <form method="POST" action="/tenants">
+    <label>
+      Tenant Name
+      <input type="text" name="name" required placeholder="My Organization" />
+    </label>
+    <label>
+      Slug (URL-friendly)
+      <input type="text" name="slug" required pattern="[a-z0-9-]+" placeholder="my-org" />
+    </label>
+    <label>
+      Reason (optional)
+      <textarea name="reason" placeholder="Why do you need this tenant?" rows="3"></textarea>
+    </label>
+    <button type="submit">Submit Request</button>
+  </form>
+</section>
+<% } %>
+
+<%- include('../partials/footer') %>

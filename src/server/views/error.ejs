@@ -1,0 +1,9 @@
+<%- include('partials/header', { title: 'Error', user: typeof user !== 'undefined' ? user : null, flash: null, flashType: null }) %>
+
+<section class="panel narrow">
+  <h1>Error</h1>
+  <p class="muted"><%= typeof message !== 'undefined' ? message : 'An unexpected error occurred.' %></p>
+  <a href="/"><button class="secondary">Return Home</button></a>
+</section>
+
+<%- include('partials/footer') %>

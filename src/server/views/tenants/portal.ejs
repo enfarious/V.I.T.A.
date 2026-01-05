@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= tenant.name %> - Portal | VITA Frontier</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('../partials/header', { user }) %>
+  
+  <main class="container">
+    <% if (flash) { %>
+      <div class="flash flash-<%= flashType || 'info' %>"><%= flash %></div>
+    <% } %>
+
+    <div class="tenant-header">
+      <h1><%= tenant.name %></h1>
+      <p class="tenant-slug">/<%= tenant.slug %></p>
+      <% if (membership && membership.role === 'owner') { %>
+        <span class="badge badge-owner">Owner</span>
+      <% } else if (membership) { %>
+        <span class="badge"><%= membership.role %></span>
+      <% } %>
+    </div>
+
+    <section class="card">
+      <h2>Installed Modules</h2>
+      <% if (modules.filter(m => m.installed).length === 0) { %>
+        <p class="text-muted">No modules installed yet.</p>
+      <% } else { %>
+        <ul class="module-list">
+          <% modules.filter(m => m.installed).forEach(mod => { %>
+            <li class="module-item">
+              <div class="module-info">
+                <strong><%= mod.name %></strong>
+                <span class="version">v<%= mod.version %></span>
+              </div>
+              <div class="module-actions">
+                <a href="/t/<%= tenant.slug %>/m/<%= mod.id %>/" class="btn btn-sm">Open UI</a>
+                <% if (membership && membership.role === 'owner') { %>
+                  <a href="/t/<%= tenant.slug %>/modules/<%= mod.id %>/config" class="btn btn-sm btn-secondary">Configure</a>
+                <% } %>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </section>
+
+    <% if (membership && membership.role === 'owner') { %>
+      <section class="card">
+        <h2>Available Modules</h2>
+        <% const uninstalled = modules.filter(m => !m.installed); %>
+        <% if (uninstalled.length === 0) { %>
+          <p class="text-muted">All modules are installed.</p>
+        <% } else { %>
+          <ul class="module-list">
+            <% uninstalled.forEach(mod => { %>
+              <li class="module-item">
+                <div class="module-info">
+                  <strong><%= mod.name %></strong>
+                  <span class="version">v<%= mod.version %></span>
+                </div>
+                <form action="/t/<%= tenant.slug %>/modules/<%= mod.id %>/install" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-primary">Install</button>
+                </form>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </section>
+
+      <section class="card">
+        <h2>Module UI Configuration</h2>
+        <p class="text-muted">Configure custom frontend deployments for each module.</p>
+        <% modules.filter(m => m.installed).forEach(mod => { %>
+          <div class="ui-config-item">
+            <h3><%= mod.name %></h3>
+            <% const asset = assetSources[mod.id]; %>
+            <% if (asset && asset.repo_url) { %>
+              <p>
+                <strong>Source:</strong> 
+                <a href="<%= asset.repo_url %>" target="_blank"><%= asset.repo_url %></a>
+                (<%= asset.branch || 'main' %>)
+              </p>
+              <p>
+                <strong>Status:</strong> 
+                <span class="status-<%= asset.status %>"><%= asset.status %></span>
+                <% if (asset.last_synced_at) { %>
+                  - Last synced: <%= new Date(asset.last_synced_at).toLocaleString() %>
+                <% } %>
+              </p>
+              <form action="/t/<%= tenant.slug %>/modules/<%= mod.id %>/ui-sync" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-sm">Sync Now</button>
+              </form>
+            <% } else { %>
+              <form action="/t/<%= tenant.slug %>/modules/<%= mod.id %>/ui-source" method="POST" class="ui-source-form">
+                <input type="text" name="repo_url" placeholder="https://github.com/owner/repo" required>
+                <input type="text" name="branch" placeholder="main" value="main">
+                <button type="submit" class="btn btn-sm btn-primary">Set Source</button>
+              </form>
+            <% } %>
+          </div>
+        <% }) %>
+      </section>
+
+      <section class="card">
+        <h2>Tenant Settings</h2>
+        <p class="text-muted">Manage tenant configuration and billing.</p>
+        <ul>
+          <li><a href="/t/<%= tenant.slug %>/settings">General Settings</a></li>
+          <li><a href="/t/<%= tenant.slug %>/members">Manage Members</a></li>
+        </ul>
+      </section>
+    <% } %>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

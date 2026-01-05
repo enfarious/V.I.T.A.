@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tribe Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #e4e4e7;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(90deg, #a78bfa, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links a {
+      color: #a1a1aa;
+      text-decoration: none;
+      margin-left: 1.5rem;
+    }
+    .nav-links a:hover { color: #e4e4e7; }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #a78bfa;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #a1a1aa;
+      font-size: 0.9rem;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      align-items: end;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(90deg, #7c3aed, #6366f1);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-danger {
+      background: linear-gradient(90deg, #dc2626, #b91c1c);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .status-badge.success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-badge.pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+    .status-badge.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .status-badge.none { background: rgba(161, 161, 170, 0.2); color: #a1a1aa; }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #a1a1aa; }
+    .info-value { color: #e4e4e7; font-weight: 500; }
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .message.success { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+    .message.error { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .hidden { display: none !important; }
+    #loading { text-align: center; padding: 4rem; color: #a1a1aa; }
+    .sync-log {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0.5rem;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      background: none;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: rgba(124, 58, 237, 0.2);
+      color: #a78bfa;
+    }
+    .tab:hover { color: #e4e4e7; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading">Loading admin panel...</div>
+    
+    <div id="app" class="hidden">
+      <header>
+        <h1 id="tribe-name">Tribe Admin</h1>
+        <nav class="nav-links">
+          <a href="./">Portal</a>
+          <a href="/tenants">All Tenants</a>
+          <a href="/me">Profile</a>
+        </nav>
+      </header>
+
+      <div id="not-owner" class="hidden">
+        <div class="card">
+          <h2>Access Denied</h2>
+          <p style="color: #a1a1aa;">You need to be the tribe owner to access admin settings.</p>
+          <a href="./" class="btn" style="margin-top: 1rem;">Back to Portal</a>
+        </div>
+      </div>
+
+      <div id="admin-content" class="hidden">
+        <div class="tabs">
+          <button class="tab active" data-tab="github">GitHub / UI Source</button>
+          <button class="tab" data-tab="settings">Tribe Settings</button>
+          <button class="tab" data-tab="admins">Manage Admins</button>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+
+        <div id="tab-github" class="tab-content">
+          <div class="card">
+            <h2>Connect GitHub Repository</h2>
+            <p style="color: #a1a1aa; margin-bottom: 1rem;">
+              Connect a GitHub repository containing your tribe's custom UI. The repo should have built assets (index.html + assets/).
+            </p>
+            
+            <div id="current-source" class="hidden" style="margin-bottom: 1.5rem;">
+              <div class="info-row">
+                <span class="info-label">Current Source</span>
+                <span class="info-value" id="current-repo">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Branch</span>
+                <span class="info-value" id="current-branch">-</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Status</span>
+                <span id="current-status"></span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Last Synced</span>
+                <span class="info-value" id="last-synced">-</span>
+              </div>
+            </div>
+
+            <form id="github-form">
+              <div class="form-group">
+                <label>GitHub Repository URL</label>
+                <input type="url" id="repo-url" placeholder="https://github.com/username/repo" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label>Branch</label>
+                  <input type="text" id="repo-branch" value="main" placeholder="main">
+                </div>
+                <button type="submit" class="btn">Save Source</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>Sync UI from GitHub</h2>
+            <p style="color: #a1a1aa; margin-bottom: 1rem;">
+              Pull the latest assets from your connected repository. This will replace the current UI.
+            </p>
+            <button id="sync-btn" class="btn" disabled>Sync Now</button>
+            <div id="sync-log" class="sync-log hidden"></div>
+          </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content hidden">
+          <div class="card">
+            <h2>Tribe Settings</h2>
+            <form id="settings-form">
+              <div class="form-group">
+                <label>Join Policy</label>
+                <select id="join-policy">
+                  <option value="open">Open - Anyone can join</option>
+                  <option value="approval">Approval Required</option>
+                  <option value="invite">Invite Only</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Visibility</label>
+                <select id="visibility">
+                  <option value="public">Public - Visible to everyone</option>
+                  <option value="private">Private - Hidden from listings</option>
+                </select>
+              </div>
+              <button type="submit" class="btn">Save Settings</button>
+            </form>
+          </div>
+        </div>
+
+        <div id="tab-admins" class="tab-content hidden">
+          <div class="card">
+            <h2>Tenant Admins</h2>
+            <p style="color: #a1a1aa; margin-bottom: 1rem;">
+              Admins can manage tribe settings, approve join requests, and sync UI updates.
+            </p>
+            <ul id="admin-list" style="list-style: none; margin-bottom: 1rem;"></ul>
+            <p style="color: #71717a; font-size: 0.85rem;">
+              (Admin management coming soon - for now, use the API)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const pathParts = window.location.pathname.split('/');
+    const slugIndex = pathParts.indexOf('t') + 1;
+    const SLUG = pathParts[slugIndex];
+    const MODULE_BASE = `/t/${SLUG}/m/basic_tribe_ui`;
+    const TENANT_BASE = `/t/${SLUG}`;
+
+    let currentUser = null;
+    let membership = null;
+    let uiSource = null;
+
+    function showMessage(text, type = 'success') {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = `message ${type}`;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 5000);
+    }
+
+    async function api(path, options = {}) {
+      const base = path.startsWith('/t/') ? '' : TENANT_BASE;
+      const res = await fetch(base + path, {
+        ...options,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...options.headers }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    async function loadSession() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        if (res.ok) {
+          currentUser = await res.json();
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    async function loadMembership() {
+      try {
+        const data = await api(`/m/basic_tribe_ui/me`);
+        membership = data.membership;
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function loadUISource() {
+      try {
+        uiSource = await api(`/modules/basic_tribe_ui/ui-source`);
+        return uiSource;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updateSourceDisplay() {
+      const sourceEl = document.getElementById('current-source');
+      const syncBtn = document.getElementById('sync-btn');
+      
+      if (uiSource?.source?.repo_url) {
+        sourceEl.classList.remove('hidden');
+        document.getElementById('current-repo').textContent = uiSource.source.repo_url;
+        document.getElementById('current-branch').textContent = uiSource.source.branch || 'main';
+        document.getElementById('repo-url').value = uiSource.source.repo_url;
+        document.getElementById('repo-branch').value = uiSource.source.branch || 'main';
+        
+        const status = uiSource.source.status || 'pending';
+        const statusEl = document.getElementById('current-status');
+        statusEl.innerHTML = `<span class="status-badge ${status === 'synced' ? 'success' : status === 'error' ? 'error' : 'pending'}">${status}</span>`;
+        
+        document.getElementById('last-synced').textContent = 
+          uiSource.source.synced_at ? new Date(uiSource.source.synced_at).toLocaleString() : 'Never';
+        
+        syncBtn.disabled = false;
+      } else {
+        sourceEl.classList.add('hidden');
+        syncBtn.disabled = true;
+      }
+    }
+
+    async function saveSource(e) {
+      e.preventDefault();
+      const repoUrl = document.getElementById('repo-url').value.trim();
+      const branch = document.getElementById('repo-branch').value.trim() || 'main';
+      
+      try {
+        await api(`/modules/basic_tribe_ui/ui-source`, {
+          method: 'POST',
+          body: JSON.stringify({ repo_url: repoUrl, branch })
+        });
+        showMessage('GitHub source saved! Click "Sync Now" to pull assets.');
+        await loadUISource();
+        updateSourceDisplay();
+      } catch (e) {
+        showMessage(e.message, 'error');
+      }
+    }
+
+    async function syncUI() {
+      const logEl = document.getElementById('sync-log');
+      const syncBtn = document.getElementById('sync-btn');
+      
+      logEl.classList.remove('hidden');
+      logEl.textContent = 'Starting sync...\n';
+      syncBtn.disabled = true;
+      
+      try {
+        const result = await api(`/modules/basic_tribe_ui/ui-sync`, { method: 'POST' });
+        logEl.textContent += `Sync complete!\nFiles: ${result.file_count || '?'}\nSize: ${result.total_size ? Math.round(result.total_size/1024) + 'KB' : '?'}\n`;
+        showMessage('UI synced successfully! Refresh to see changes.');
+        await loadUISource();
+        updateSourceDisplay();
+      } catch (e) {
+        logEl.textContent += `Error: ${e.message}\n`;
+        showMessage(e.message, 'error');
+      } finally {
+        syncBtn.disabled = false;
+      }
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          tab.classList.add('active');
+          document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+        });
+      });
+    }
+
+    async function loadSettings() {
+      try {
+        const settings = await api(`/m/basic_tribe_ui/settings`);
+        document.getElementById('join-policy').value = settings.join_policy || 'approval';
+        document.getElementById('visibility').value = settings.visibility || 'public';
+      } catch (e) {
+        console.error('Failed to load settings:', e);
+      }
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      try {
+        await api(`/m/basic_tribe_ui/settings`, {
+          method: 'POST',
+          body: JSON.stringify({
+            join_policy: document.getElementById('join-policy').value,
+            visibility: document.getElementById('visibility').value
+          })
+        });
+        showMessage('Settings saved successfully!');
+      } catch (e) {
+        showMessage(e.message, 'error');
+      }
+    }
+
+    async function init() {
+      const hasSession = await loadSession();
+      
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+
+      if (!hasSession) {
+        window.location.href = '/auth/discord';
+        return;
+      }
+
+      const memberData = await loadMembership();
+      
+      if (!memberData || !['owner'].includes(membership?.role)) {
+        document.getElementById('not-owner').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('tribe-name').textContent = memberData.tenant?.name + ' Admin';
+      document.getElementById('admin-content').classList.remove('hidden');
+
+      await loadUISource();
+      updateSourceDisplay();
+      await loadSettings();
+
+      document.getElementById('github-form').addEventListener('submit', saveSource);
+      document.getElementById('sync-btn').addEventListener('click', syncUI);
+      document.getElementById('settings-form').addEventListener('submit', saveSettings);
+      setupTabs();
+    }
+
+    init();
+  </script>
+</body>
+</html>

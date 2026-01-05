@@ -1,0 +1,27 @@
+<%- include('../partials/header', { title: 'Complete Discord Setup', user: null, flash: null, flashType: null }) %>
+
+<section class="panel narrow">
+  <h1>Complete Your Account</h1>
+  <p style="margin-bottom: 16px; color: var(--muted);">
+    Welcome, <strong><%= discordUser.global_name || discordUser.username %></strong>! 
+    Your Discord account doesn't have a verified email. Please provide an email address to complete your registration.
+  </p>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="flash error"><%= error %></div>
+  <% } %>
+
+  <form method="POST" action="/auth/complete-discord">
+    <label>
+      Email Address
+      <input type="email" name="email" required autofocus autocomplete="email" />
+    </label>
+    <button type="submit">Complete Registration</button>
+  </form>
+
+  <p style="margin-top: 16px; text-align: center;">
+    <a href="/auth/login">Cancel and use a different method</a>
+  </p>
+</section>
+
+<%- include('../partials/footer') %>

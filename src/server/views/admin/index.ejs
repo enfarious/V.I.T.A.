@@ -1,0 +1,92 @@
+<%- include('../partials/header', { title: 'Platform Admin', user, flash: typeof flash !== 'undefined' ? flash : null, flashType: typeof flashType !== 'undefined' ? flashType : null }) %>
+
+<section class="panel">
+  <h1>Platform Admin</h1>
+  <p class="muted">Manage tenant creation requests and platform settings.</p>
+</section>
+
+<section class="panel" style="margin-top: 24px;">
+  <h2>Pending Tenant Requests</h2>
+  <% if (typeof pendingRequests !== 'undefined' && pendingRequests && pendingRequests.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Requested By</th>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Reason</th>
+          <th>Requested</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pendingRequests.forEach(r => { %>
+          <tr>
+            <td><%= r.requester_name || r.requester_discord || 'Unknown' %></td>
+            <td><strong><%= r.name %></strong></td>
+            <td class="muted"><%= r.slug %></td>
+            <td><%= r.reason || '-' %></td>
+            <td class="muted"><%= r.created_at ? new Date(r.created_at).toLocaleDateString() : '-' %></td>
+            <td>
+              <form method="POST" action="/admin/tenant-requests/<%= r.id %>/approve" style="display:inline;">
+                <button type="submit" class="btn-small positive">Approve</button>
+              </form>
+              <form method="POST" action="/admin/tenant-requests/<%= r.id %>/deny" style="display:inline; margin-left: 8px;">
+                <button type="submit" class="btn-small warn">Deny</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p class="muted">No pending requests.</p>
+  <% } %>
+</section>
+
+<section class="panel" style="margin-top: 24px;">
+  <h2>Recent Decisions</h2>
+  <% if (typeof recentRequests !== 'undefined' && recentRequests && recentRequests.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Requester</th>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Status</th>
+          <th>Reviewed By</th>
+          <th>Note</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentRequests.forEach(r => { %>
+          <tr>
+            <td><%= r.requester_name || 'Unknown' %></td>
+            <td><%= r.name %></td>
+            <td class="muted"><%= r.slug %></td>
+            <td>
+              <span class="tag <%= r.status === 'approved' ? 'positive' : 'warn' %>"><%= r.status %></span>
+            </td>
+            <td><%= r.reviewer_name || '-' %></td>
+            <td><%= r.review_note || '-' %></td>
+            <td class="muted"><%= r.reviewed_at ? new Date(r.reviewed_at).toLocaleDateString() : '-' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p class="muted">No recent decisions.</p>
+  <% } %>
+</section>
+
+<section class="panel" style="margin-top: 24px;">
+  <h2>Navigation</h2>
+  <p>
+    <a href="/">Home</a> |
+    <a href="/tenants">Tenants</a> |
+    <a href="/me">Profile</a>
+  </p>
+</section>
+
+<%- include('../partials/footer') %>

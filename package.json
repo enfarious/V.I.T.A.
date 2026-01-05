@@ -1,0 +1,42 @@
+{
+  "name": "vita-frontier",
+  "version": "1.0.0",
+  "description": "VITA Frontier web app (Web2-first, Web3-ready via Chain Adapter boundary)",
+  "type": "module",
+  "main": "src/server/index.js",
+  "scripts": {
+    "dev": "nodemon src/server/index.js",
+    "start": "node src/server/index.js",
+    "migrate": "node -e \"import('./src/db/migrate.js').then(m=>m.migrateLatest())\"",
+    "seed": "node -e \"import('./src/db/migrate.js').then(m=>m.seedDev())\"",
+    "test": "echo \"(placeholder) add tests\""
+  },
+  "keywords": [
+    "VITA",
+    "EVE",
+    "Frontier",
+    "ChainAdapter"
+  ],
+  "author": "Enfarious Krividus",
+  "license": "AGPLv3",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "connect-pg-simple": "^10.0.0",
+    "dayjs": "^1.11.19",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.18.2",
+    "extract-zip": "^2.0.1",
+    "knex": "^3.1.0",
+    "marked": "^17.0.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.13.1",
+    "sanitize-html": "^2.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

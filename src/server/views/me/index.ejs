@@ -1,0 +1,46 @@
+<%- include('../partials/header', { title: 'My Profile', user, flash: typeof flash !== 'undefined' ? flash : null, flashType: typeof flashType !== 'undefined' ? flashType : null }) %>
+
+<section class="panel">
+  <h1>My Profile</h1>
+  <dl style="display: grid; grid-template-columns: 120px 1fr; gap: 12px;">
+    <dt class="muted">Display Name</dt>
+    <dd><strong><%= user.display_name %></strong></dd>
+    <dt class="muted">Email</dt>
+    <dd><%= user.email %></dd>
+    <dt class="muted">User ID</dt>
+    <dd class="muted">#<%= user.id %></dd>
+    <dt class="muted">Member Since</dt>
+    <dd><%= user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A' %></dd>
+  </dl>
+</section>
+
+<% if (typeof memberships !== 'undefined' && memberships && memberships.length > 0) { %>
+<section class="panel" style="margin-top: 24px;">
+  <h2>Tenant Memberships</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Tenant</th>
+        <th>Role</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% memberships.forEach(m => { %>
+        <tr>
+          <td><a href="/t/<%= m.slug %>"><%= m.name %></a></td>
+          <td><span class="tag"><%= m.role %></span></td>
+          <td class="muted"><%= m.created_at ? new Date(m.created_at).toLocaleDateString() : '-' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+<% } else { %>
+<section class="panel" style="margin-top: 24px;">
+  <h2>Tenant Memberships</h2>
+  <p class="muted">You're not a member of any tenants yet.</p>
+</section>
+<% } %>
+
+<%- include('../partials/footer') %>

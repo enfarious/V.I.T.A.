@@ -1,0 +1,210 @@
+<%- include('partials/header', { title: 'About', user: user, flash: typeof flash !== 'undefined' ? flash : null, flashType: typeof flashType !== 'undefined' ? flashType : null }) %>
+
+<section class="panel wide">
+  <h1>About VITA Frontier</h1>
+  
+  <div class="about-intro manifesto">
+    <p class="lead">
+      <strong>VITA is life.</strong> For anybody, from the ground up.
+    </p>
+    
+    <p>
+      To the small tribe that doesn't want to commit 40 hours a week to dev work—<strong>I got you.</strong>
+    </p>
+    
+    <p>
+      To the madmen doing twenty-hour dev runs that start at any hour night or day and don't stop til it's done—<strong>Yo! I got you too.</strong> I'm just hosting your shit.
+    </p>
+    
+    <p>
+      For anyone anywhere else on the spectrum—<strong>I got you too.</strong>
+    </p>
+    
+    <p class="highlight">
+      That's what VITA is. <strong>Freedom to do you.</strong>
+    </p>
+    
+    <p>
+      If you don't want me but you wanna build out a massive multi-tribe joint—you host. Steal all my shit. That's why I made it. Do that, then I'll help you make it better so I can steal it back.
+    </p>
+    
+    <p class="cta">Let's go.</p>
+  </div>
+
+  <div class="matrix-section">
+    <h2>Choose Your Trust Boundary</h2>
+    <img src="/images/hosting-matrix.svg" alt="Hosting Options Matrix showing four quadrants based on UI control and data custody" class="hosting-matrix" />
+  </div>
+
+  <div class="about-details">
+    <h2>The Four Quadrants</h2>
+    
+    <div class="quadrant-grid">
+      <div class="quadrant-card">
+        <span class="quadrant-icon">🙂</span>
+        <h3>Happy Path Citizens</h3>
+        <p class="quadrant-model">Our UI • Our DB</p>
+        <p>Full SaaS experience. Just sign up and go. We handle hosting, upgrades, backups—everything. Perfect for small tribes who want to focus on playing, not infrastructure.</p>
+      </div>
+      
+      <div class="quadrant-card">
+        <span class="quadrant-icon">🛡️</span>
+        <h3>Law-Abiding Tribe Leaders</h3>
+        <p class="quadrant-model">Our UI • BYO DB</p>
+        <p>You get our polished interface, but your data stays in your hands. Ideal for organizations with compliance requirements or those who simply don't trust anyone with their data.</p>
+      </div>
+      
+      <div class="quadrant-card">
+        <span class="quadrant-icon">🧨</span>
+        <h3>Chaos Gremlins</h3>
+        <p class="quadrant-model">BYO UI • Our DB</p>
+        <p>Build whatever wild interface you want. We provide stable APIs, tenant isolation, and uptime. You host the blast radius. Great for modders and experimenters.</p>
+      </div>
+      
+      <div class="quadrant-card">
+        <span class="quadrant-icon">⚙️</span>
+        <h3>Anarchist Engineers</h3>
+        <p class="quadrant-model">BYO UI • BYO DB</p>
+        <p>Maximum control, minimal babysitting. Run everything yourself. We provide auth protocols and compatibility contracts. For enterprise, on-prem, and custody purists.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-promise">
+    <h2>The Spine Stays Consistent</h2>
+    <p>
+      No matter which quadrant you choose, the core promise remains: <strong>stable protocols, clean APIs, and respect for your autonomy</strong>. VITA Frontier is the backbone—you decide how much of it you want to rely on.
+    </p>
+  </div>
+</section>
+
+<style>
+  .panel.wide {
+    max-width: 1000px;
+  }
+  
+  .about-intro {
+    margin-bottom: 2rem;
+  }
+  
+  .about-intro.manifesto {
+    font-size: 1.15rem;
+    line-height: 1.8;
+  }
+  
+  .about-intro.manifesto p {
+    margin-bottom: 1rem;
+  }
+  
+  .about-intro .lead {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+  
+  .about-intro .highlight {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin: 1.5rem 0;
+  }
+  
+  .about-intro .cta {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--fg);
+    margin-top: 1.5rem;
+  }
+  
+  .about-intro p {
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  
+  .about-intro p strong {
+    color: var(--fg);
+  }
+  
+  .matrix-section {
+    margin: 3rem 0;
+    text-align: center;
+  }
+  
+  .matrix-section h2 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .hosting-matrix {
+    width: 100%;
+    max-width: 900px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  
+  .about-details {
+    margin: 3rem 0;
+  }
+  
+  .about-details h2 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .quadrant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .quadrant-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  
+  .quadrant-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .quadrant-card h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+  }
+  
+  .quadrant-model {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .quadrant-card p:last-child {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+  
+  .about-promise {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .about-promise h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .about-promise p {
+    color: var(--muted);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+</style>
+
+<%- include('partials/footer') %>

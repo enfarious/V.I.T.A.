@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc" style="max-width:100%;height:auto">
+  <title id="title">Hosting Options Matrix</title>
+  <desc id="desc">2x2 matrix showing UI control versus data custody with four hosting options.</desc>
+
+  <defs>
+    <style>
+      :root { --fg:#0f172a; --muted:#475569; --grid:#cbd5e1; --bg:#ffffff; }
+      .bg { fill: var(--bg); }
+      .border { stroke: var(--fg); stroke-width: 3; fill: none; }
+      .grid { stroke: var(--grid); stroke-width: 2; }
+
+      .axis { fill: var(--fg); font: 800 24px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .small { fill: var(--muted); font: 700 16px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
+      .qtitle { fill: var(--fg); font: 900 30px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .qsub { fill: var(--muted); font: 800 18px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .icon { font-size: 40px; }
+
+      .box {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.35;
+        color: var(--fg);
+      }
+      .box .muted { color: var(--muted); font-weight: 600; }
+      .box .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-weight: 800;
+      }
+      .footer { fill: var(--muted); font: 700 14px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="760" />
+
+  <!-- Frame -->
+  <rect class="border" x="120" y="80" width="980" height="560" />
+  <line class="grid" x1="610" y1="80" x2="610" y2="640" />
+  <line class="grid" x1="120" y1="360" x2="1100" y2="360" />
+
+  <!-- Axes -->
+  <!-- Y axis: UI Control with UP/DOWN arrows (↕) -->
+  <g transform="translate(48,360) rotate(-90)">
+    <text class="axis" text-anchor="middle">UI Control ↕</text>
+  </g>
+
+  <!-- X axis: Data Custody with LEFT/RIGHT arrows (↔) -->
+  <text class="axis" x="610" y="715" text-anchor="middle">Data Custody ↔</text>
+
+  <!-- Axis end labels (restored) -->
+  <text class="small" x="140" y="690" text-anchor="start">Our DB ↔ BYO-DB</text>
+  <text class="small" x="1080" y="690" text-anchor="end">BYO-DB ↔ Our DB</text>
+
+  <text class="small" x="1120" y="110" text-anchor="end">BYO-UI ↔ Our UI</text>
+  <text class="small" x="1120" y="630" text-anchor="end">Our UI ↔ BYO-UI</text>
+
+  <!-- Top Left -->
+  <text class="icon" x="140" y="150">🧨</text>
+  <text class="qtitle" x="190" y="150">Chaos Gremlins</text>
+  <text class="qsub" x="190" y="180">BYO UI • Our DB/API</text>
+  <foreignObject x="140" y="195" width="440" height="150">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="box">
+      <div class="mono">Fast. Experimental. You host the blast radius.</div>
+      <div class="muted">Best for: rapid iteration, custom clients, modders.</div>
+      <div class="muted">Promise: stable API, tenant isolation, uptime.</div>
+    </div>
+  </foreignObject>
+
+  <!-- Top Right -->
+  <text class="icon" x="630" y="150">⚙️</text>
+  <text class="qtitle" x="680" y="150">Anarchist Engineers</text>
+  <text class="qsub" x="680" y="180">BYO UI • BYO DB</text>
+  <foreignObject x="630" y="195" width="440" height="150">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="box">
+      <div class="mono">All control. Minimal babysitting.</div>
+      <div class="muted">Best for: enterprise, on-prem, custody purists.</div>
+      <div class="muted">Promise: auth + protocol + compatibility contract.</div>
+    </div>
+  </foreignObject>
+
+  <!-- Bottom Left -->
+  <text class="icon" x="140" y="430">🙂</text>
+  <text class="qtitle" x="190" y="430">Happy Path Citizens</text>
+  <text class="qsub" x="190" y="460">Our UI • Our DB/API</text>
+  <foreignObject x="140" y="475" width="440" height="150">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="box">
+      <div class="mono">Plug in. Ship. No engineers required.</div>
+      <div class="muted">Best for: small tribes, quick onboarding.</div>
+      <div class="muted">Promise: full SaaS, support, upgrades handled.</div>
+    </div>
+  </foreignObject>
+
+  <!-- Bottom Right -->
+  <text class="icon" x="630" y="430">🛡️</text>
+  <text class="qtitle" x="680" y="430">Law-Abiding Tribe Leaders</text>
+  <text class="qsub" x="680" y="460">Our UI • BYO DB</text>
+  <foreignObject x="630" y="475" width="440" height="150">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="box">
+      <div class="mono">Polished UX. You keep custody.</div>
+      <div class="muted">Best for: NGOs, unions, regulated orgs.</div>
+      <div class="muted">Promise: UI upgrades without data custody.</div>
+    </div>
+  </foreignObject>
+
+  <text class="footer" x="610" y="745" text-anchor="middle">Choose your trust boundary wisely. The spine stays consistent.</text>
+</svg>

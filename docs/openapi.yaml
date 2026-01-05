@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: VITA Frontier API
+  description: |
+    API for the VITA Frontier multi-tenant platform.
+    
+    This API serves as the backend spine for:
+    - The default EF-VITA-Frontend (Vite + React)
+    - Any BYO frontend that wants to connect
+    
+    Authentication is cookie-based (session) for browser clients.
+  version: 0.1.0
+  contact:
+    name: VITA Frontier
+    url: https://ef-vita.net
+
+servers:
+  - url: https://ef-vita.net/api
+    description: Production
+  - url: http://localhost:5000/api
+    description: Development
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      tags: [System]
+      responses:
+        '200':
+          description: Service status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /me:
+    get:
+      summary: Get current user
+      operationId: getMe
+      tags: [Auth]
+      responses:
+        '200':
+          description: Current authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithMemberships'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tenants:
+    get:
+      summary: List user's tenants
+      operationId: listTenants
+      tags: [Tenants]
+      responses:
+        '200':
+          description: List of tenants user belongs to
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TenantWithRole'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new tenant
+      operationId: createTenant
+      tags: [Tenants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRequest'
+      responses:
+        '201':
+          description: Tenant created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tenants/{slug}:
+    get:
+      summary: Get tenant details
+      operationId: getTenant
+      tags: [Tenants]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDetails'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tenants/{slug}/members:
+    get:
+      summary: List tenant members
+      operationId: listTenantMembers
+      tags: [Tenants]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Member'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /chain/identity/{address}:
+    get:
+      summary: Resolve chain identity
+      operationId: getChainIdentity
+      tags: [Chain]
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Identity resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainIdentity'
+        '404':
+          description: Identity not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /chain/tribe/{tribeId}:
+    get:
+      summary: Get tribe info from chain
+      operationId: getChainTribe
+      tags: [Chain]
+      parameters:
+        - name: tribeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tribe info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainTribe'
+        '404':
+          description: Tribe not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        version:
+          type: string
+        commit:
+          type: string
+          nullable: true
+        chain:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        display_name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    UserWithMemberships:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            memberships:
+              type: array
+              items:
+                $ref: '#/components/schemas/Membership'
+
+    Membership:
+      type: object
+      properties:
+        tenant_id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        role:
+          type: string
+          enum: [owner, admin, member]
+        joined_at:
+          type: string
+          format: date-time
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [active, suspended]
+        created_at:
+          type: string
+          format: date-time
+
+    TenantWithRole:
+      allOf:
+        - $ref: '#/components/schemas/Tenant'
+        - type: object
+          properties:
+            role:
+              type: string
+              enum: [owner, admin, member]
+
+    TenantDetails:
+      allOf:
+        - $ref: '#/components/schemas/Tenant'
+        - type: object
+          properties:
+            member_count:
+              type: integer
+            my_role:
+              type: string
+              nullable: true
+
+    CreateTenantRequest:
+      type: object
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+        display_name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [owner, admin, member]
+        joined_at:
+          type: string
+          format: date-time
+
+    ChainIdentity:
+      type: object
+      properties:
+        canonicalId:
+          type: string
+        displayName:
+          type: string
+        address:
+          type: string
+
+    ChainTribe:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        memberCount:
+          type: integer
+        createdAt:
+          type: string
+
+tags:
+  - name: System
+    description: Health and status
+  - name: Auth
+    description: Authentication and current user
+  - name: Tenants
+    description: Tenant (tribe) management
+  - name: Chain
+    description: Blockchain/chain adapter queries
